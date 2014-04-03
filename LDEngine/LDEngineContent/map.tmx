@@ -8,4 +8,7 @@
    H4sIAAAAAAAAC2NkYGBgpDKmFiDWPHLVYXM3KX4gRi0h+ygxjxCg1Dxc4YXLDFz+w+VnYsWIlcdlHj6Aze24zCMmjRPjdmpiAAR+IbPAAwAA
   </data>
  </layer>
+ <objectgroup name="spawn" width="20" height="12">
+  <object x="16" y="160" width="16" height="16"/>
+ </objectgroup>
 </map>

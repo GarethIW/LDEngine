@@ -66,15 +66,12 @@ namespace TiledLib
         /// 
         public void Update(GameTime gameTime)
         {
-            //Width = bounds.Width;
-            //Height = bounds.Height;
-
             // Clamp target to map/camera bounds
-            //Target.X = MathHelper.Clamp(Target.X, ClampRect.X, ClampRect.Width - Width);
-            //Target.Y = MathHelper.Clamp(Target.Y, ClampRect.Y, ClampRect.Height - Height);
+            Target.X = MathHelper.Clamp(Target.X, ClampRect.X, ClampRect.Width - Width);
+            Target.Y = MathHelper.Clamp(Target.Y, ClampRect.Y, ClampRect.Height - Height);
 
-           // Position.X = MathHelper.Clamp(Position.X, ClampRect.X, ClampRect.Width - Width);
-            //Position.Y = MathHelper.Clamp(Position.Y, ClampRect.Y, ClampRect.Height - Height);
+            Position.X = MathHelper.Clamp(Position.X, ClampRect.X, ClampRect.Width - Width);
+            Position.Y = MathHelper.Clamp(Position.Y, ClampRect.Y, ClampRect.Height - Height);
 
             if (shakeTime > 0)
             {
@@ -88,7 +85,8 @@ namespace TiledLib
 
             //Rotation = TurnToFace(Vector2.Zero, AngleToVector(RotationTarget, 1f), Rotation, 0.02f);
 
-            CameraMatrix = Matrix.CreateTranslation(-((int)Position.X), (-(int)Position.Y) + shakeOffset.Y, 0) * Matrix.CreateScale(Zoom) * Matrix.CreateRotationZ(Rotation) *Matrix.CreateTranslation(Width / 2, Height/2, 0);
+            CameraMatrix = Matrix.CreateTranslation(-Position.X, -Position.Y + shakeOffset.Y, 0)*
+                           Matrix.CreateScale(Zoom)*Matrix.CreateRotationZ(Rotation);// *Matrix.CreateTranslation(Width / 2f, Height/2f, 0);
             //CameraMatrix *= Matrix.CreateRotationZ(Rotation);
         }
 

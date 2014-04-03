@@ -27,12 +27,8 @@ namespace TimersAndTweens
 
         public Tween Create(string name, TweenFunc func, Action<Tween> callback, double time, bool pingpong, bool loop)
         {
-            Tween t = new Tween(name, func, callback, time, pingpong, loop);
-            Tweens.Add(t);
-
-            return t;
+            return Create(name, func, callback, time, pingpong, loop, TweenDirection.Forward);
         }
-
         public Tween Create(string name, TweenFunc func, Action<Tween> callback, double time, bool pingpong, bool loop, TweenDirection initialDirection)
         {
             Tween t = new Tween(name, func, callback, time, pingpong, loop, initialDirection);
