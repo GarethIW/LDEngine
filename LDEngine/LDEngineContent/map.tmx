@@ -2,8 +2,16 @@
 <map version="1.0" orientation="orthogonal" width="20" height="12" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="testtiles" tilewidth="16" tileheight="16">
   <image source="testtiles.png" width="48" height="48"/>
+  <tile id="0">
+   <properties>
+    <property name="CollisionSet" value="True"/>
+   </properties>
+  </tile>
  </tileset>
  <layer name="fg" width="20" height="12">
+  <properties>
+   <property name="Collision" value="On"/>
+  </properties>
   <data encoding="base64" compression="gzip">
    H4sIAAAAAAAAC2NkYGBgpDKmFiDWPHLVYXM3KX4gRi0h+ygxjxCg1Dxc4YXLDFz+w+VnYsWIlcdlHj6Aze24zCMmjRPjdmpiAAR+IbPAAwAA
   </data>

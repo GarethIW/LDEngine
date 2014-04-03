@@ -18,7 +18,7 @@ namespace LDEngine.Entities
             : base(name, spritesheet, position, speed, hitbox, hitboxoffset)
         {
             _idleAnim = new SpriteAnim(spritesheet, 0, 1, 16,16,0, new Vector2(8f,16f));
-            _runAnim = new SpriteAnim(spritesheet, 1, 7, 16, 16, 100, new Vector2(8f,16f));
+            _runAnim = new SpriteAnim(spritesheet, 1, 7, 16, 16, 60, new Vector2(8f,16f));
             _runAnim.Play();
         }
 

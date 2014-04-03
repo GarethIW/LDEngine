@@ -24,6 +24,8 @@ namespace LDEngine.Screens
 
         private Hero hero;
 
+        ParticleController particleController = new ParticleController();
+
         public GameplayScreen()
         {
             
@@ -41,6 +43,8 @@ namespace LDEngine.Screens
 
             heroSheet = content.Load<Texture2D>("testhero");
             hero = new Hero("hero", heroSheet, new Vector2(spawn.Location.Center.X,spawn.Location.Bottom), Vector2.Zero, new Rectangle(0,0,16,16), new Vector2(0,-8f));
+
+            particleController.LoadContent(content);
 
             //TimerController.Instance.Create("blinksquare", () => { squareBlink = !squareBlink; }, 100, true);
 
@@ -72,6 +76,15 @@ namespace LDEngine.Screens
             camera.Target = hero.Position;
             camera.Update(gameTime);
             hero.Update(gameTime, map);
+            particleController.Update(gameTime, map);
+
+            particleController.Add(new Vector2(17, 40), new Vector2(Helper.RandomFloat(2f), -1.5f), 100, 3000, 1000, true, true, new Rectangle(0, 0, 2, 2), new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.FadeInOut, 1f, 0f);
+            particleController.Add(new Vector2(100, 65), new Vector2(-0.5f + Helper.RandomFloat(1f), 0f), 100, 3000, 1000, true, true, new Rectangle(0, 0, 2, 2), new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.FadeInOut, 1f, 0f);
+            particleController.Add(new Vector2(250, 16), new Vector2(-0.5f + Helper.RandomFloat(1f), 0f), 100, 3000, 1000, true, true, new Rectangle(0, 0, 2, 2), new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.FadeInOut, 1f, 0f);
+
+            particleController.Add(new Vector2(150, 176), new Vector2(-0.05f + Helper.RandomFloat(0.1f), -0.1f), 1000, Helper.Random.NextDouble() * 3000, Helper.Random.NextDouble() * 3000, false, false, new Rectangle(0, 0, 16, 16), new Color(new Vector3(1f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.Smoke, 0.1f, 0f);
+
+
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
         }
 
@@ -83,6 +96,8 @@ namespace LDEngine.Screens
             map.DrawLayer(ScreenManager.SpriteBatch, "fg", camera);
             hero.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
+
+            particleController.Draw(ScreenManager.SpriteBatch, camera);
 
             ScreenManager.SpriteBatch.Begin();
             //if(!squareBlink) ScreenManager.SpriteBatch.Draw(ScreenManager.blankTexture,new Vector2(20,20),Color.White);

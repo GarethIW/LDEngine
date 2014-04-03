@@ -31,7 +31,7 @@ namespace LDEngine
 
         private RenderTarget2D renderTarget;
 
-        private int DisplayScale = 1;
+        private int DisplayScale = 4;
 
         private KeyboardState lks;
 
@@ -49,8 +49,8 @@ namespace LDEngine
         /// </summary>
         protected override void Initialize()
         {
-            graphics.PreferredBackBufferWidth = RenderWidth;
-            graphics.PreferredBackBufferHeight = RenderHeight;
+            graphics.PreferredBackBufferWidth = RenderWidth * DisplayScale;
+            graphics.PreferredBackBufferHeight = RenderHeight * DisplayScale;
             graphics.ApplyChanges();
 
             screenManager = new ScreenManager(this);
