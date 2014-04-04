@@ -31,7 +31,7 @@ namespace LDEngine
 
         private RenderTarget2D renderTarget;
 
-        private int DisplayScale = 4;
+        private int DisplayScale = 6;
 
         private KeyboardState lks;
 
@@ -51,6 +51,7 @@ namespace LDEngine
         {
             graphics.PreferredBackBufferWidth = RenderWidth * DisplayScale;
             graphics.PreferredBackBufferHeight = RenderHeight * DisplayScale;
+            graphics.IsFullScreen = true;
             graphics.ApplyChanges();
 
             screenManager = new ScreenManager(this);
@@ -73,6 +74,7 @@ namespace LDEngine
             lks = Keyboard.GetState();
 
             screenManager.AddScreen(new GameplayScreen());
+            //screenManager.AddScreen(new MainMenuScreen());
         }
 
         /// <summary>
@@ -107,7 +109,7 @@ namespace LDEngine
                 DisplayScale--;
                 ChangeDisplayScale();
             }
-            if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp) && DisplayScale < 5)
+            if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp) && DisplayScale < 6)
             {
                 DisplayScale++;
                 ChangeDisplayScale();
@@ -127,6 +129,7 @@ namespace LDEngine
             GraphicsDevice.SetRenderTarget(renderTarget);
 
             GraphicsDevice.Clear(Color.Black);
+            
             screenManager.Draw(gameTime);
 
             GraphicsDevice.SetRenderTarget(null);

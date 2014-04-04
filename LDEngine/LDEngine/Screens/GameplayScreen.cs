@@ -46,12 +46,12 @@ namespace LDEngine.Screens
 
             particleController.LoadContent(content);
 
-            //TimerController.Instance.Create("blinksquare", () => { squareBlink = !squareBlink; }, 100, true);
+            TimerController.Instance.Create("shake", () => camera.Shake(500, 2f), 3000, true);
 
-            //TweenController.Instance.Create("spintext", TweenFuncs.Linear, (tween) =>
-            //{
-            //    textRot = MathHelper.TwoPi*tween.Value;
-            //}, 3000, false, true);
+            TweenController.Instance.Create("spintext", TweenFuncs.Linear, (tween) =>
+            {
+                textRot = MathHelper.TwoPi * tween.Value;
+            }, 3000, false, true);
 
             //TweenController.Instance.Create("spincam", TweenFuncs.Linear, (tween) =>
             //{
@@ -68,6 +68,18 @@ namespace LDEngine.Screens
             //    camera.Target = new Vector2(ScreenManager.Game.RenderWidth*tween.Value, ScreenManager.Game.RenderHeight / 2);
             //}, 10000, true, true);
 
+            
+
+            particleController.Add(new Vector2(195, 150),
+                                  Vector2.Zero,
+                                  0, 1000, 0,
+                                  false, false,
+                                  new Rectangle(18, 0, 100, 100),
+                                  Color.White,
+                                  ParticleFunctions.PermaLight,
+                                  1f, 0f,
+                                  1, ParticleBlend.Multiplicative);
+
             base.LoadContent();
         }
 
@@ -78,11 +90,35 @@ namespace LDEngine.Screens
             hero.Update(gameTime, map);
             particleController.Update(gameTime, map);
 
-            particleController.Add(new Vector2(17, 40), new Vector2(Helper.RandomFloat(2f), -1.5f), 100, 3000, 1000, true, true, new Rectangle(0, 0, 2, 2), new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.FadeInOut, 1f, 0f);
-            particleController.Add(new Vector2(100, 65), new Vector2(-0.5f + Helper.RandomFloat(1f), 0f), 100, 3000, 1000, true, true, new Rectangle(0, 0, 2, 2), new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.FadeInOut, 1f, 0f);
-            particleController.Add(new Vector2(250, 16), new Vector2(-0.5f + Helper.RandomFloat(1f), 0f), 100, 3000, 1000, true, true, new Rectangle(0, 0, 2, 2), new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.FadeInOut, 1f, 0f);
+            particleController.Add(new Vector2(17, 40),
+                                   new Vector2(Helper.RandomFloat(2f), -1.5f),
+                                   100, 3000, 1000,
+                                   true, true,
+                                   new Rectangle(0, 0, 2, 2),
+                                   new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))),
+                                   ParticleFunctions.FadeInOut,
+                                   1f, 0f,
+                                   1, ParticleBlend.Alpha);
 
-            particleController.Add(new Vector2(150, 176), new Vector2(-0.05f + Helper.RandomFloat(0.1f), -0.1f), 1000, Helper.Random.NextDouble() * 3000, Helper.Random.NextDouble() * 3000, false, false, new Rectangle(0, 0, 16, 16), new Color(new Vector3(1f) * (0.25f + Helper.RandomFloat(0.5f))), ParticleFunctions.Smoke, 0.1f, 0f);
+            particleController.Add(new Vector2(150, 176),
+                                   new Vector2(-0.05f + Helper.RandomFloat(0.1f), -0.1f),
+                                   1000, Helper.Random.NextDouble() * 3000, Helper.Random.NextDouble() * 3000,
+                                   false, false,
+                                   new Rectangle(0, 0, 16, 16),
+                                   new Color(new Vector3(1f) * (0.25f + Helper.RandomFloat(0.5f))),
+                                   ParticleFunctions.Smoke,
+                                   0.1f, 0f,
+                                   1, ParticleBlend.Additive);
+
+            particleController.Add(new Vector2(250, 50),
+                                   new Vector2(-1f + Helper.RandomFloat(2f), -1f + Helper.RandomFloat(2f)),
+                                   100, 500, 1000,
+                                   false, false,
+                                   new Rectangle(0, 0, 16, 16),
+                                   Color.White,
+                                   ParticleFunctions.FadeLight,
+                                   Helper.RandomFloat(0.5f), 0f,
+                                   1, ParticleBlend.Multiplicative);
 
 
             base.Update(gameTime, otherScreenHasFocus, coveredByOtherScreen);
@@ -90,21 +126,23 @@ namespace LDEngine.Screens
 
         public override void Draw(GameTime gameTime)
         {
-            Vector2 center = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight)/2f;
+            Vector2 center = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight) / 2f;
 
-            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null,SamplerState.PointClamp,null,null,null,camera.CameraMatrix);
+            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.CameraMatrix);
+            map.DrawLayer(ScreenManager.SpriteBatch, "bg", camera);
             map.DrawLayer(ScreenManager.SpriteBatch, "fg", camera);
             hero.Draw(ScreenManager.SpriteBatch);
             ScreenManager.SpriteBatch.End();
 
-            particleController.Draw(ScreenManager.SpriteBatch, camera);
+            particleController.Draw(ScreenManager.SpriteBatch, camera, 1);
 
-            ScreenManager.SpriteBatch.Begin();
+            ScreenManager.SpriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null);
             //if(!squareBlink) ScreenManager.SpriteBatch.Draw(ScreenManager.blankTexture,new Vector2(20,20),Color.White);
-            //ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, "TRIPPIN' BALLS", center, Color.White, textRot, ScreenManager.Font.MeasureString("TRIPPIN' BALLS") / 2f, 1f, SpriteEffects.None, 1);
+            ScreenManager.SpriteBatch.DrawString(ScreenManager.Font, "LD ENGINE", center, Color.White, textRot, ScreenManager.Font.MeasureString("LDENGINE") / 2f, 1f, SpriteEffects.None, 1);
             ScreenManager.SpriteBatch.End();
 
             base.Draw(gameTime);
+
         }
     }
 }

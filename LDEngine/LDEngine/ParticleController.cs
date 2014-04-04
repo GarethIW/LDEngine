@@ -21,12 +21,21 @@ namespace LDEngine
         Done
     }
 
+    public enum ParticleBlend
+    {
+        Alpha,
+        Additive,
+        Multiplicative
+    }
+
 
     public class Particle
     {
         public Vector2 Position;
         public Vector2 Velocity;
         public ParticleState State;
+        public ParticleBlend Blend;
+        public int Depth;
         public bool AffectedByGravity;
         public bool CanCollide;
         public float Alpha;
@@ -58,6 +67,8 @@ namespace LDEngine
 
         public Texture2D _texParticles;
 
+        private BlendState multiplicativeBlend;
+
         public ParticleController()
         {
             Particles = new Particle[MAX_PARTICLES];
@@ -69,6 +80,16 @@ namespace LDEngine
 
             for (int i = 0; i < MAX_PARTICLES; i++)
                 Particles[i] = new Particle() {State = ParticleState.Done};
+
+            multiplicativeBlend = new BlendState();
+           
+            multiplicativeBlend.ColorDestinationBlend = Blend.SourceColor;
+            multiplicativeBlend.ColorSourceBlend = Blend.DestinationColor;
+            //multiplicativeBlend.AlphaSourceBlend = Blend.One;
+            //multiplicativeBlend.AlphaDestinationBlend = Blend.SourceAlpha;
+            //multiplicativeBlend.AlphaBlendFunction = BlendFunction.Add;
+            //multiplicativeBlend.ColorBlendFunction = BlendFunction.Add;
+
         }
 
         public void Update(GameTime gameTime, Map gameMap)
@@ -145,26 +166,44 @@ namespace LDEngine
             }
             sb.End();
         }
-        public void Draw(SpriteBatch sb, Camera gameCamera)
+        public void Draw(SpriteBatch sb, Camera gameCamera, int depth)
         {
-            sb.Begin(SpriteSortMode.Deferred, null, null, null, null, null, gameCamera.CameraMatrix);
-            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done))
+            sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
+            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done && p.Blend == ParticleBlend.Alpha && p.Depth == depth))
             {
                 sb.Draw(_texParticles, 
                     p.Position,
                     p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
             }
             sb.End();
+            sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
+            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done && p.Blend == ParticleBlend.Additive && p.Depth == depth))
+            {
+                sb.Draw(_texParticles,
+                    p.Position,
+                    p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
+            }
+            sb.End();
+            sb.Begin(SpriteSortMode.Deferred, multiplicativeBlend, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
+            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done && p.Blend== ParticleBlend.Multiplicative && p.Depth == depth))
+            {
+                sb.Draw(_texParticles,
+                    p.Position,
+                    p.SourceRect, p.Color, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
+            }
+            sb.End();
         }
 
 
-        public void Add(Vector2 spawnPos, Vector2 velocity, double attackTime, double lifeTime, double decayTime, bool affectedbygravity, bool canCollide, Rectangle sourcerect, Color col, Action<Particle> particleFunc, float startScale, float startRot)
+        public void Add(Vector2 spawnPos, Vector2 velocity, double attackTime, double lifeTime, double decayTime, bool affectedbygravity, bool canCollide, Rectangle sourcerect, Color col, Action<Particle> particleFunc, float startScale, float startRot, int depth, ParticleBlend blend)
         {
             Particle p = Particles.FirstOrDefault(part => part.State == ParticleState.Done);
             if (p!=null)
             {
                 p.Position = spawnPos;
                 p.Velocity = velocity;
+                p.Blend = blend;
+                p.Depth = depth;
                 p.AttackTime = attackTime;
                 p.LifeTime = lifeTime;
                 p.DecayTime = decayTime;
@@ -219,13 +258,46 @@ namespace LDEngine
             switch (p.State)
             {
                 case ParticleState.Attack:
-                    p.Alpha = p.AttackValue *0.2f;
+                    p.Alpha = p.AttackValue *0.3f;
                     break;
                 case ParticleState.Alive:
-                    if(p.Alpha<0.2f) p.Alpha += 0.001f;
+                    if(p.Alpha<0.3f) p.Alpha += 0.001f;
                     break;
                 case ParticleState.Decay:
-                    p.Alpha = 0.2f - (p.DecayValue * 0.2f);
+                    p.Alpha = 0.3f - (p.DecayValue * 0.3f);
+                    break;
+            }
+        }
+
+        public static void PermaLight(Particle p)
+        {
+            switch (p.State)
+            {
+                case ParticleState.Attack:
+                    p.Alpha = p.AttackValue;
+                    break;
+                case ParticleState.Alive:
+                    p.Alpha = 1f;
+                    p.CurrentTime = 0;
+                    break;
+                case ParticleState.Decay:
+                    p.Alpha = 1f - p.DecayValue;
+                    break;
+            }
+        }
+
+        public static void FadeLight(Particle p)
+        {
+            switch (p.State)
+            {
+                case ParticleState.Attack:
+                    p.Color = new Color(new Vector3(0.5f+(p.AttackValue*0.5f)));
+                    break;
+                case ParticleState.Alive:
+                    p.Color = Color.White;
+                    break;
+                case ParticleState.Decay:
+                    p.Color = new Color(new Vector3(1f - (p.DecayValue * 0.5f)));
                     break;
             }
         }

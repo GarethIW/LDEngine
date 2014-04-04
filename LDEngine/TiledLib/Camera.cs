@@ -42,7 +42,7 @@ namespace TiledLib
             Width = width;
             Height = height;
 
-            ClampRect = new Rectangle(0,0, map.Width * map.TileWidth, map.Height * map.TileHeight);
+            ClampRect = new Rectangle((Width / 2), (Height / 2), (map.Width * map.TileWidth) - (Width / 2), (map.Height * map.TileHeight) - (Height / 2));
 
             if (map.Properties.Contains("CameraBoundsLeft"))
                 ClampRect.X = Convert.ToInt32(map.Properties["CameraBoundsLeft"]) * map.TileWidth;
@@ -67,16 +67,16 @@ namespace TiledLib
         public void Update(GameTime gameTime)
         {
             // Clamp target to map/camera bounds
-            Target.X = MathHelper.Clamp(Target.X, ClampRect.X, ClampRect.Width - Width);
-            Target.Y = MathHelper.Clamp(Target.Y, ClampRect.Y, ClampRect.Height - Height);
+            Target.X = MathHelper.Clamp(Target.X, ClampRect.X, ClampRect.Width);
+            Target.Y = MathHelper.Clamp(Target.Y, ClampRect.Y, ClampRect.Height);
 
-            Position.X = MathHelper.Clamp(Position.X, ClampRect.X, ClampRect.Width - Width);
-            Position.Y = MathHelper.Clamp(Position.Y, ClampRect.Y, ClampRect.Height - Height);
+            Position.X = MathHelper.Clamp(Position.X, ClampRect.X, ClampRect.Width);
+            Position.Y = MathHelper.Clamp(Position.Y, ClampRect.Y, ClampRect.Height);
 
             if (shakeTime > 0)
             {
                 shakeTime -= gameTime.ElapsedGameTime.TotalMilliseconds;
-                shakeOffset = new Vector2(0, Helper.RandomFloat(-shakeAmount, shakeAmount));
+                shakeOffset = new Vector2((int)Helper.RandomFloat(-shakeAmount, shakeAmount), (int)Helper.RandomFloat(-shakeAmount, shakeAmount));
             }
             else shakeOffset = Vector2.Zero;
 
@@ -85,8 +85,8 @@ namespace TiledLib
 
             //Rotation = TurnToFace(Vector2.Zero, AngleToVector(RotationTarget, 1f), Rotation, 0.02f);
 
-            CameraMatrix = Matrix.CreateTranslation(-Position.X, -Position.Y + shakeOffset.Y, 0)*
-                           Matrix.CreateScale(Zoom)*Matrix.CreateRotationZ(Rotation);// *Matrix.CreateTranslation(Width / 2f, Height/2f, 0);
+            CameraMatrix = Matrix.CreateTranslation(-Position.X + shakeOffset.X, -Position.Y + shakeOffset.Y, 0) *
+                           Matrix.CreateScale(Zoom)*Matrix.CreateRotationZ(Rotation) *Matrix.CreateTranslation(Width / 2f, Height/2f, 0);
             //CameraMatrix *= Matrix.CreateRotationZ(Rotation);
         }
 

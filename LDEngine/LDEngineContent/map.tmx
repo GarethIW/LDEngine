@@ -8,6 +8,11 @@
    </properties>
   </tile>
  </tileset>
+ <layer name="bg" width="20" height="12">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC2NiYGBgGsWjeBQPSQwAaxKT58ADAAA=
+  </data>
+ </layer>
  <layer name="fg" width="20" height="12">
   <properties>
    <property name="Collision" value="On"/>
