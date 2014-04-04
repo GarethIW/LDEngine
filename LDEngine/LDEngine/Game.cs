@@ -107,7 +107,7 @@ namespace LDEngine
                 DisplayScale--;
                 ChangeDisplayScale();
             }
-            if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp) && DisplayScale < 4)
+            if (cks.IsKeyDown(Keys.PageUp) && !lks.IsKeyDown(Keys.PageUp) && DisplayScale < 5)
             {
                 DisplayScale++;
                 ChangeDisplayScale();
