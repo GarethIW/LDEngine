@@ -48,8 +48,6 @@ namespace GameStateManagement
 
         public override void LoadContent()
         {
-           
-
             // Create our menu entries.
             fullScreen = new MenuEntry(string.Empty, true);
 
@@ -59,6 +57,7 @@ namespace GameStateManagement
 
             // Hook up menu event handlers.
             fullScreen.Selected += FullScreenMenuEntrySelected;
+            back.Selected += (sender, args) => ExitScreen();
         
             MenuEntries.Add(fullScreen);
             MenuEntries.Add(back);
@@ -86,7 +85,7 @@ namespace GameStateManagement
         /// </summary>
         void SetMenuEntryText()
         {
-            
+            fullScreen.Text = ScreenManager.Game.GraphicsDevice.PresentationParameters.IsFullScreen ? "Windowed":"Fullscreen";
         }
 
 
@@ -100,8 +99,7 @@ namespace GameStateManagement
         /// </summary>
         void FullScreenMenuEntrySelected(object sender, EventArgs e)
         {
-           
-
+            ScreenManager.Game.ToggleFullScreen();
             SetMenuEntryText();
         }
 

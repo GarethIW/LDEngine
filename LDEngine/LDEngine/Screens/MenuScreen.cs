@@ -27,7 +27,7 @@ namespace GameStateManagement
         #region Fields
 
         // the number of pixels to pad above and below menu entries for touch input
-        const int menuEntryPadding = 0;
+        const int menuEntryPadding = -10;
 
         List<MenuEntry> menuEntries = new List<MenuEntry>();
         int selectedEntry = 0;
@@ -97,9 +97,9 @@ namespace GameStateManagement
             // with some additional padding above and below.
             return new Rectangle(
                 0,
-                (int)entry.Position.Y - menuEntryPadding- 10,
+                (int)entry.Position.Y + menuEntryPadding,
                 ScreenManager.Game.GraphicsDevice.Viewport.Width,
-                entry.GetHeight(this) + (menuEntryPadding * 2));
+                entry.GetHeight(this)+menuEntryPadding);
         }
 
         /// <summary>
@@ -140,9 +140,9 @@ namespace GameStateManagement
             if (input.IsMenuSelect()) OnSelectEntry(selectedEntry);
             if (selectedEntry < 0) selectedEntry = menuEntries.Count - 1;
             if (selectedEntry >= menuEntries.Count) selectedEntry = 0;
-            
-            
-            Point mouseLocation = new Point(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+
+
+            Point mouseLocation = ScreenManager.ScaledMousePos;
 
             for (int i = 0; i < menuEntries.Count; i++)
             {
@@ -155,7 +155,7 @@ namespace GameStateManagement
                     // Mouse left click?
                     if (input.CurrentMouseState.LeftButton == ButtonState.Released && input.LastMouseState.LeftButton == ButtonState.Pressed)
                     {
-                       menuEntry.Click(input.CurrentMouseState.X, input.CurrentMouseState.Y);
+                       menuEntry.Click(mouseLocation.X, mouseLocation.Y);
                     }
                 }
             }
@@ -227,7 +227,7 @@ namespace GameStateManagement
                 menuEntry.Position = position;
 
                 // move down for the next entry the size of this entry plus our padding
-                position.Y += menuEntry.GetHeight(this) + (menuEntryPadding * 2);
+                position.Y += menuEntry.GetHeight(this) + (menuEntryPadding);
             }
         }
 

@@ -31,6 +31,8 @@ namespace GameStateManagement
         public MouseState CurrentMouseState;
         public MouseState LastMouseState;
 
+        
+
         #endregion
 
         #region Initialization
@@ -60,6 +62,8 @@ namespace GameStateManagement
 
             CurrentKeyboardState = Keyboard.GetState();
             CurrentMouseState = Mouse.GetState();
+
+            
         }
 
 

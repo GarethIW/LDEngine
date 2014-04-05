@@ -31,22 +31,19 @@ namespace GameStateManagement
         {
             // Create our menu entries.
    
-            MenuEntry playGameMenuEntry = new MenuEntry("Play", false);
+            MenuEntry playGameMenuEntry = new MenuEntry("Play", true);
             MenuEntry optionsMenuEntry = new MenuEntry("Options", true);
             MenuEntry exitMenuEntry = new MenuEntry("Exit", true);
 
             // Hook up menu event handlers.
-           
             playGameMenuEntry.Selected += PlayGameMenuEntrySelected;      
             optionsMenuEntry.Selected += OptionsMenuEntrySelected;
             exitMenuEntry.Selected += OnCancel;
 
             // Add entries to the menu.
-         
             MenuEntries.Add(playGameMenuEntry);
             MenuEntries.Add(optionsMenuEntry);
             MenuEntries.Add(exitMenuEntry);
-
         }
 
         
@@ -56,8 +53,6 @@ namespace GameStateManagement
 
         #region Handle Input
 
-
-      
 
         void PlayGameMenuEntrySelected(object sender, EventArgs e)
         {
@@ -79,16 +74,6 @@ namespace GameStateManagement
         protected override void OnCancel(object sender, EventArgs e)
         {
             ScreenManager.Game.Exit();
-        }
-
-
-        /// <summary>
-        /// Event handler for when the user selects ok on the "are you sure
-        /// you want to exit" message box.
-        /// </summary>
-        void ConfirmExitMessageBoxAccepted(object sender, EventArgs e)
-        {
-            
         }
 
 

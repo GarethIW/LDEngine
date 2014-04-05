@@ -192,7 +192,7 @@ namespace GameStateManagement
 
         public virtual void Click(int x, int y)
         {
-            
+            OnSelectEntry();
         }
     }
 }

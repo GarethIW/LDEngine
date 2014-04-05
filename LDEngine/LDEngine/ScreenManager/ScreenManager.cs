@@ -33,12 +33,12 @@ namespace GameStateManagement
 
         public LDEngine.Game Game;
 
-
-
         List<GameScreen> screens = new List<GameScreen>();
         List<GameScreen> screensToUpdate = new List<GameScreen>();
 
         public InputState Input = new InputState();
+
+        public Point ScaledMousePos;
 
         SpriteBatch spriteBatch;
         SpriteFont font;
@@ -155,8 +155,8 @@ namespace GameStateManagement
             // Read the keyboard and gamepad.
             Input.Update();
 
+            ScaledMousePos = new Point(Input.CurrentMouseState.X / Game.DisplayScale, Input.CurrentMouseState.Y / Game.DisplayScale);
 
-            Game.IsMouseVisible = false;
             // Make a copy of the master screen list, to avoid confusion if
             // the process of updating one screen adds or removes others.
             screensToUpdate.Clear();
