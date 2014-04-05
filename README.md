@@ -10,10 +10,10 @@ LDEngine is a 2D pixelart engine/framework for XNA and [Monogame](https://github
 * Sprite animation
 * [Spine](http://esotericsoftware.com/) animation
 * Gamestate management using a lightly-modified version of the good old [Game State Management sample](http://xbox.create.msdn.com/en-US/education/catalog/sample/game_state_management)
-* Entities and pooling
+* Entities and pooling (Work in progress)
 * Particles
-* Sound effects and music playback
-* Windows, Linux and MacOS support
+* Sound effects and music playback (Currently not present)
+* Windows, Linux and MacOS support (Work in progress)
 
 ![Animgif](http://i.imgur.com/R4jI3h0.gif)
 
@@ -77,3 +77,125 @@ The camera updates a CameraMatrix, which can be passed into a SpriteBatch to nea
 
 You can set Rotation (radians) and Zoom (float scale) for fun! Also, try calling Shake(milliseconds, float amount) to Juice It Up.
 
+Timers
+------
+
+Using timers is pretty straightfoward. If you've ever used setInterval or setTimeout in JS, then you're golden.
+
+```C#
+TimerController.Instance.Create(name, callback, milliseconds, looping);
+
+// example:
+TimerController.Instance.Create("shake", () => camera.Shake(500, 2f), 3000, true);
+```
+
+If you do not create a looped timer (looping=true) then the timer will fire once and then be destroyed.
+
+You can use timers as simple fire-and-forgets, or you can assign them to a local variable and then use Pause(), Resume(), Reset() and Kill() to manipulate them.
+
+Tweening
+--------
+
+A simple yet powerful tweening engine. Works a little like timers, but the callback function is called every time the tween updates. A tween is simply a way of getting from 0f to 1f (and back again if needed), in a stylish fashion.
+
+```C#
+TweenController.Instance.Create(name, tween function, callback, milliseconds, pingpong, looping);
+
+// example:
+TweenController.Instance.Create("spintext", TweenFuncs.Linear, (tween) =>
+            {
+                textRot = MathHelper.TwoPi * tween.Value;
+            }, 3000, false, true);
+```
+
+A tween that has "pingpong" set will go from 0f to 1f and then back to 0f again. It will do that in the supplied millisecond time (rather than taking 2*milliseconds).
+
+A non-pingponging looped tween will go from 0f to 1f and then reset directly to 0f.
+
+Here are the built-in tweening functions:
+
+* Linear
+* QuadraticEaseIn
+* QuadraticEaseOut
+* QuadraticEaseInOut
+* CubicEaseIn
+* CubicEaseOut
+* CubicEaseInOut
+* QuarticEaseIn
+* QuarticEaseOut
+* QuarticEaseInOut
+* QuinticEaseIn
+* QuinticEaseOut
+* QuinticEaseInOut
+* SineEaseIn
+* SineEaseOut
+* SineEaseInOut
+* Bounce
+* Elastic
+
+Particles
+---------
+
+The particle engine is built to be as flexible as possible. One particle texture "sheet" is used for all particles, and each particle can define its source rectangle from within the particle texture.
+
+Particles have Attack, Life and Decay times and Values. For example, a particle with the following values:
+
+AttackTime = 1000;
+LifeTime = 5000;
+DecayTime = 1000;
+
+Will spend one second coming into existence, five seconds alive, and then one second disappearing.
+
+During each stage of the particle's life, you can measure how far through it is with the Value vars:
+
+AttackValue
+LifeValue
+DecayValue
+
+Each stage will take the corresponding amount of time to go from 0f to 1f. The point of this is so that you can use a callback function to control exactly how the particle behaves during each stage of its life:
+
+```C#
+public static void FadeInOut(Particle p)
+{
+    switch (p.State)
+    {
+        case ParticleState.Attack:
+            p.Alpha = p.AttackValue;
+            break;
+        case ParticleState.Alive:
+            p.Alpha = 1f;
+            break;
+        case ParticleState.Decay:
+            p.Alpha = 1f - p.DecayValue;
+            break;
+    }
+}
+```
+
+You can create your own Particle Callbacks in the static ParticleFunctions class (ParticleController.cs). Because they're static functions, we're not allocating memory for each particle callback.
+
+To add a particle:
+
+```C#
+ParticleController.Instance.Add(Vector2 spawnPos, Vector2 velocity, 
+                                double attackTime, double lifeTime, double decayTime, 
+                                bool affectedbygravity, bool canCollide, 
+                                Rectangle sourcerect, Color col, 
+                                Action<Particle> particleFunc, 
+                                float startScale, float startRot, 
+                                int depth, ParticleBlend blend)
+
+// example:
+ParticleController.Instance.Add(new Vector2(17, 40), new Vector2(Helper.RandomFloat(2f), -1.5f),
+                                100, 3000, 1000,
+                                true, true,
+                                new Rectangle(0, 0, 2, 2),
+                                new Color(new Vector3(1f, 0f, 0f) * (0.25f + Helper.RandomFloat(0.5f))),
+                                ParticleFunctions.FadeInOut,
+                                1f, 0f,
+                                1, ParticleBlend.Alpha);
+```
+
+Phew, that's a lot of parameters! They're mostly straightforward, so I'll explain the ones that need it.
+
+When canCollide is set, it'll make the particle collide with the Tiled map per-pixel collision detection. If you're not using a Tiled map, you could add your own collision routines in ParticleController.Update()
