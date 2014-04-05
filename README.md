@@ -29,6 +29,8 @@ You can use my code for anything you like without credit. You may need to take a
 
 I'll take a look at any PRs submitted - just remember that the idea is to keep the engine flexible!
 
+Send me a tweet [@garethiw](http://twitter.com/garethiw), and throw out a tweet linking this repo if you like it/use it!
+
 Building
 --------
 
@@ -46,7 +48,7 @@ Full support for Mac and Linux will be along shortly. I'm 99% sure it'll run on 
 Usage
 -----
 
-This engine won't help you make a game - I'm assuming you're here because you have experience with XNA and/or Monogame and making 2D games.
+This engine won't make your game for you - I'm assuming you're here because you have experience with XNA and/or Monogame and making 2D games.
 
 I have provided an ExampleGameplayScreen, which the main Game.cs class loads by default. It shows how to load a map, spawn a "Hero", add particles and use the tweening and timer functions.
 
