@@ -40,8 +40,6 @@ namespace LDEngine.Screens
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (!ScreenManager.Game.IsActive) return;
-
             camera.Update(gameTime);
            
             particleController.Update(gameTime, map);

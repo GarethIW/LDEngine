@@ -79,8 +79,6 @@ namespace LDEngine.Screens
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            if (!ScreenManager.Game.IsActive) return;
-
             camera.Target = hero.Position;
             camera.Update(gameTime);
             hero.Update(gameTime, map);

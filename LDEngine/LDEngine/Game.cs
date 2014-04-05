@@ -70,6 +70,8 @@ namespace LDEngine
 
         protected override void Update(GameTime gameTime)
         {
+            if (!IsActive) return;
+
             screenManager.Update(gameTime);
 
             timerController.Update(gameTime);
