@@ -23,6 +23,12 @@ There's a mish-mash of code from various sources and I haven't cleaned any of it
 * The Spine library comes from the [official spine-runtimes repo](https://github.com/EsotericSoftware/spine-runtimes)
 * Gamestate Management from the above link
 
+Usage and Contributing
+----------------------
+You can use my code for anything you like without credit. You may need to take a look at licences for the Gamestate Management sample and the Spine runtimes if you use those.
+
+I'll take a look at any PRs submitted - just remember that the idea is to keep the engine flexible!
+
 Building
 --------
 
@@ -199,3 +205,20 @@ ParticleController.Instance.Add(new Vector2(17, 40), new Vector2(Helper.RandomFl
 Phew, that's a lot of parameters! They're mostly straightforward, so I'll explain the ones that need it.
 
 When canCollide is set, it'll make the particle collide with the Tiled map per-pixel collision detection. If you're not using a Tiled map, you could add your own collision routines in ParticleController.Update()
+
+SourceRect is the source rectangle for SpriteDatch.Draw. Add your own particles to particles.png and set the rectangle appropriately.
+
+particleFunc sould be set to one of the static function in ParticleFunctions (or your own).
+
+depth is simply a way of grouping particles so that you can draw them in the right order in your scene. Supply depth when you call ParticleController.Draw() and only the particles with the same value for depth will be drawn.
+
+The ParticleBlend enum sets one of three BlendStates for use when drawing the particle:
+
+ * Alpha - uses BlendState.Alpha. For drawing standard particles.
+ * Additive - uses BlanedState.Additive. Useful for drawing smoke/cloud particles
+ * Multiplicative - uses a custom 2x multiplicative blend state. See [Shawn Hargreave's blog](http://blogs.msdn.com/b/shawnhar/archive/2011/08/01/1401282.aspx) for an example. You can use this mode to do crude lighting effects with particles - see the ExampleGameplayScreen for a couple of uses.
+ 
+More
+----
+
+I'm still working on audio and entities/pooling, so I'll write about that here when they're done. The Spine runtimes should all work okay, but you'll need to head over to the Spine site (link at the top) to get more info on their usage. I have used the included code several times in my own projects just fine.
