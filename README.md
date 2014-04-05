@@ -166,7 +166,7 @@ _runAnim = new SpriteAnim(spritesheet, 1, 7, 16, 16, 60, new Vector2(8f,16f), tr
 
 Mostly straightforward. Row is the row number of the animation in the spritesheet texture. Width and Height are the size of each cell of animation.
 
-Offset works in the same way as the SpriteBatch.Draw origin, except the origin defaults to the center of the frame. So an offset of Vector2.Zero would draw the center of the frame at the location supplied to SpriteAnim.Draw().
+Offset works in the same way as the SpriteBatch.Draw origin. So an offset of Vector2.Zero would the top-left of the frame at the location supplied to SpriteAnim.Draw().
 
 pingpong=true plays the anim in reverse once it reaches the last frame.
 
