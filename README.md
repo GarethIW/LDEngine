@@ -145,7 +145,7 @@ Here are the built-in tweening functions:
 Sprite Animation
 ----------------
 
-![](http://imgur.com/qFsWt4i)
+![](http://i.imgur.com/qFsWt4i.png)
 
 This is a really bog-standard animation sheet support with no frills! Each instance of SpriteAnim represents ONE row in a spritesheet. There is currently no support for multi-row animations or sheets with cell padding/margins.
 
