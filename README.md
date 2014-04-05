@@ -73,6 +73,8 @@ To set up the per-pixel collision detection:
 
 ![](http://i.imgur.com/gdrUCaO.png) 
 
+You still need to write actual collision code for your game entities, but you'll be able to check whether a pixel is collidable or not by using map.CheckCollision(V2 position) and reacting accordingly. See an example in ParticleController.Update().
+
 Camera
 ------
 
@@ -139,6 +141,36 @@ Here are the built-in tweening functions:
 * SineEaseInOut
 * Bounce
 * Elastic
+
+Sprite Animation
+----------------
+
+This is a really bog-standard animation sheet support with no frills! Each instance of SpriteAnim represents ONE row in a spritesheet. There is currently no support for multi-row animations or sheets with cell padding/margins.
+
+There are a few different overloads on the SpriteAnim constructor, here's the most verbose:
+
+```C#
+SpriteAnim(Texture2D sheet, 
+           int row, int numframes, 
+           int width, int height, 
+           double frametime, 
+           Vector2 offset, 
+           bool loop, bool pingpong, 
+           int startframe)
+
+// example:
+_runAnim = new SpriteAnim(spritesheet, 1, 7, 16, 16, 60, new Vector2(8f,16f), true, false, 0);
+```
+
+Mostly straightforward. Row is the row number of the animation in the spritesheet texture. Width and Height are the size of each cell of animation.
+
+Offset works in the same way as the SpriteBatch.Draw origin, except the origin defaults to the center of the frame. So an offset of Vector2.Zero would draw the center of the frame at the location supplied to SpriteAnim.Draw().
+
+pingpong=true plays the anim in reverse once it reaches the last frame.
+
+SpriteAnim has a default state of Paused. You can use SpriteAnim.Play(), Pause() and Reset() to control playback.
+
+See Hero.cs for a simple example.
 
 Particles
 ---------
