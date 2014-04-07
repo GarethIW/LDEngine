@@ -52,7 +52,7 @@ namespace LDEngine.Screens
 
             particleController.LoadContent(content);
 
-            TimerController.Instance.Create("shake", () => camera.Shake(500, 2f), 3000, true);
+            // TimerController.Instance.Create("shake", () => camera.Shake(500, 2f), 3000, true);
 
             TweenController.Instance.Create("spintext", TweenFuncs.SineEaseInOut, (tween) =>
             {
@@ -89,22 +89,26 @@ namespace LDEngine.Screens
 
             heroPool.Update(gameTime,map);
 
+
+            // This stuff is all example - camera follows random Hero and zooms in when following
             if (Helper.Random.Next(200) == 0)
             {
-                followingHero = (Hero)heroPool.Entities.FirstOrDefault(hero => hero.Active);
-                
+                List<Entity> activeHeroes = heroPool.Entities.Where(hero => hero.Active).ToList();
+                if (activeHeroes.Count > 0) followingHero = (Hero) activeHeroes[Helper.Random.Next(activeHeroes.Count)];
             }
+            if (Helper.Random.Next(200) == 1 && followingHero != null) followingHero = null;
 
             if (followingHero != null && followingHero.Active)
             {
                 camera.Target = followingHero.Position;
-                if (camera.Zoom < 3f) camera.Zoom += 0.01f;
+                if (camera.Zoom < 2.5f) camera.Zoom += 0.05f;
             }
             else
             {
                 camera.Target = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight)/2f;
-                if (camera.Zoom > 1f) camera.Zoom -= 0.01f;
+                if (camera.Zoom > 1f) camera.Zoom -= 0.05f;
             }
+            //////////////////
 
             particleController.Update(gameTime, map);
 
