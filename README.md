@@ -284,19 +284,19 @@ The last parameter is the spritesheet itself, in this case loaded via our conten
 
 To spawn an entity, use the EntityPool.Spawn method:
 
-'''C#
+```C#
 heroPool.Spawn(entity =>
                {
                    entity.Position = new Vector2(Helper.Random.Next(ScreenManager.Game.RenderWidth-64)+32, 32);
                    ((Hero)entity).FaceDir = Helper.Random.Next(2) == 0 ? -1 : 1;
                });
-'''
+```
  
 Use the delegate here to initialise the "new" entity. In this case, we're setting a spawn position and a facing direction. Note that you'll need to cast the entity to the pool's entity type to access the overloaded methods or additional fields.
  
 The Entity class has a Reset()method you should override to set default values when an entity in the pool is re-used. For example:
 
-'''C#
+```C#
 public override void Reset()
 {
     Life = MAX_LIFE;
@@ -304,7 +304,7 @@ public override void Reset()
 
     base.Reset();
 }
-'''
+```
 
 The reset method is called before the delegate function supplied to the Spawn method.
 
@@ -312,8 +312,17 @@ See ExampleGameplayScreen.cs and Hero.cs for an exampl;e use of the entity and p
 
 TODO: Entity-entity collision detection (soon!)
  
+Audio
+-----
 
- 
+The AudioController is a barely-worth-mentioning static class for playing sound effects from wherever you are in the code. It also handles playback of "music", which are just looped SoundEffectInstances.
+
+The AudioController is initialised (LoadContent) right in the main Game.cs LoadContent method. There are two string-keyed dictionaries (_effects and _songs). _effects is the sound effect dictionary and holds SoundEffects, while _songs holds SoundEffectInstances which are defaulted to IsLooped.
+
+Add your effects and songs in AudioController.LoadContent() - comments provided to help you.
+
+There are several overloads for AudioController.PlaySFX. The one I use the most allows you to pass the Camera and a Position and will calculate a pan relative the the center of the camera. The effect won't play if the position is outside the bounds of the camera, so you can use this call to emit sounds from any of your in-game objects without worrying about where they are.
+
 More
 ----
 
