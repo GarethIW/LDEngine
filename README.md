@@ -255,7 +255,66 @@ The ParticleBlend enum sets one of three BlendStates for use when drawing the pa
  * Additive - uses BlanedState.Additive. Useful for drawing smoke/cloud particles
  * Multiplicative - uses a custom 2x multiplicative blend state. See [Shawn Hargreave's blog](http://blogs.msdn.com/b/shawnhar/archive/2011/08/01/1401282.aspx) for an example. You can use this mode to do crude lighting effects with particles - see the ExampleGameplayScreen for a couple of uses.
  
+Entities and Pooling
+--------------------
+
+I've included a very basic pooling system for your in-game objects. You'd use pooling for any game entity that you'd expect to have more than one of - enemies and pickups for example. Of course, you don't need to use these classes -  they're there because I'm going to make use of them!
+
+There's a very basic Entity class (Entities\Entity.cs) to inherit into your own game classes. See Hero.cs for an example of an inherited class. The base Entity contains overloads for drawing, updating and handling input. You can use an object derived from Entity without adding it to a pool - your main player class might be a standalone entity for instance.
+
+The base Entity holds a position vector2, a speed vector2, a hitbox rectangle (to be used for collision detection), and a hitbox offset vector. Be default the hitbox will be centered at the entity's position - you can change this by supplying an offset.
+
+The base entity also has an Active flag (defaults to false) which is how the Pool knows which items are currently in use. Any entities in the pool which are Active==false are available for re-use.
+
+Entity pools are initialised with a fixed capacity that you would set as needed. The entity pool also keeps hold of the sprite sheet (Texture) that will be used by all of its children to draw themselves.
+
+To create a new pool:
+
+```C#
+heroPool = new EntityPool(100, 
+                          sheet => new Hero(sheet, new Rectangle(0, 0, 10, 10), new Vector2(0, -5)),
+                          content.Load<Texture2D>("testhero"));
+```
+
+So a little explanation here. The first parameter is the maximum capacity of the pool (this pool will allocate 100 Heroes).
+
+The second parameter is a delegate function that should return a new instance of the entity we wish to pool. In this case, we're creating a new Hero. The sprite texture held by the Pool is provided so that we can pass it through into our Hero entiy's constructor (which in turn passes it into the base Entity constructor). We also set up the size and offset of the entity's Hitbox rectangle. This function will be called the number of times you passed in the first param, each time adding the result to the pool's Entities list.
+
+The last parameter is the spritesheet itself, in this case loaded via our contentmanager, but you may already have a texture ready.
+
+To spawn an entity, use the EntityPool.Spawn method:
+
+'''C#
+heroPool.Spawn(entity =>
+               {
+                   entity.Position = new Vector2(Helper.Random.Next(ScreenManager.Game.RenderWidth-64)+32, 32);
+                   ((Hero)entity).FaceDir = Helper.Random.Next(2) == 0 ? -1 : 1;
+               });
+'''
+ 
+Use the delegate here to initialise the "new" entity. In this case, we're setting a spawn position and a facing direction. Note that you'll need to cast the entity to the pool's entity type to access the overloaded methods or additional fields.
+ 
+The Entity class has a Reset()method you should override to set default values when an entity in the pool is re-used. For example:
+
+'''C#
+public override void Reset()
+{
+    Life = MAX_LIFE;
+    Speed = Vector2.Zero;
+
+    base.Reset();
+}
+'''
+
+The reset method is called before the delegate function supplied to the Spawn method.
+
+See ExampleGameplayScreen.cs and Hero.cs for an exampl;e use of the entity and pooling system.
+
+TODO: Entity-entity collision detection (soon!)
+ 
+
+ 
 More
 ----
 
-I'm still working on audio and entities/pooling, so I'll write about that here when they're done. The Spine runtimes should all work okay, but you'll need to head over to the Spine site (link at the top) to get more info on their usage. I have used the included code several times in my own projects just fine.
+The Spine runtimes should all work okay, but you'll need to head over to the Spine site (link at the top) to get more info on their usage. I have used the included code several times in my own projects just fine.
