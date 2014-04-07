@@ -49,23 +49,29 @@ namespace LDEngine
             //_songs.Add("theme", content.Load<SoundEffect>("music").CreateInstance());
 
             foreach (SoundEffectInstance s in _songs.Values)
+            {
                 s.IsLooped = true;
+                s.Volume = _musicVolume;
+            }
         }
 
         public static void PlayMusic(string track)
         {
             if (!_songs.ContainsKey(track.ToLower())) return;
 
+            StopMusic();
+
             _playingTrack = track.ToLower();
             _isPlaying = true;
-            _songs[track].IsLooped = true;
-            _songs[track].Volume = _musicVolume;
             _songs[track].Play();
         }
 
         public static void StopMusic()
         {
+            if (!_isPlaying) return;
+
             _isPlaying = false;
+            _songs[_playingTrack].Stop();
         }
 
         public static void PlaySFX(string name)
@@ -103,12 +109,8 @@ namespace LDEngine
         {
             if (_playingTrack == "") return;
 
-            if (_isPlaying)
-                if (_songs[_playingTrack].Volume < _musicVolume) _songs[_playingTrack].Volume += 0.01f;
-
-            if (!_isPlaying)
-                if (_songs[_playingTrack].Volume > 0) _songs[_playingTrack].Volume -= 0.01f;
-                else _songs[_playingTrack].Stop();
+            foreach (SoundEffectInstance s in _songs.Values)
+                s.Volume = _musicVolume;
         }
 
 
