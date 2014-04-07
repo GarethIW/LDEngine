@@ -162,7 +162,7 @@ namespace LDEngine
 
                 sb.Draw(_texParticles,
                         p.Position,
-                        p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
+                        p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
             }
             sb.End();
         }
@@ -173,7 +173,7 @@ namespace LDEngine
             {
                 sb.Draw(_texParticles, 
                     p.Position,
-                    p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
+                    p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
             }
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
@@ -181,7 +181,7 @@ namespace LDEngine
             {
                 sb.Draw(_texParticles,
                     p.Position,
-                    p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
+                    p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
             }
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, multiplicativeBlend, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
@@ -189,7 +189,7 @@ namespace LDEngine
             {
                 sb.Draw(_texParticles,
                     p.Position,
-                    p.SourceRect, p.Color, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 1);
+                    p.SourceRect, p.Color, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
             }
             sb.End();
         }

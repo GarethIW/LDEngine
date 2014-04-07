@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using GameStateManagement;
 using LDEngine.Entities;
+using LDEngine.EntityPools;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -21,9 +22,12 @@ namespace LDEngine.Screens
 
 
         private Texture2D heroSheet;
-        private Hero hero;
 
-        private float textRot = 0f;
+        private EntityPool heroPool;
+
+        private float textScale = 0f;
+
+        private Hero followingHero;
 
         public ExampleGameplayScreen()
         {
@@ -41,17 +45,19 @@ namespace LDEngine.Screens
             camera = new Camera(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight, map);
             camera.Target = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight)/2f;
 
-            heroSheet = content.Load<Texture2D>("testhero");
-            hero = new Hero("hero", heroSheet, new Vector2(spawn.Location.Center.X,spawn.Location.Bottom), Vector2.Zero, new Rectangle(0,0,16,16), new Vector2(0,-8f));
+            heroPool = new EntityPool(100, 
+                                      sheet => new Hero(sheet, new Rectangle(0, 0, 10, 10), new Vector2(0, -5)),
+                                      content.Load<Texture2D>("testhero"));
+            
 
             particleController.LoadContent(content);
 
             TimerController.Instance.Create("shake", () => camera.Shake(500, 2f), 3000, true);
 
-            TweenController.Instance.Create("spintext", TweenFuncs.Linear, (tween) =>
+            TweenController.Instance.Create("spintext", TweenFuncs.SineEaseInOut, (tween) =>
             {
-                textRot = MathHelper.TwoPi * tween.Value;
-            }, 3000, false, true);
+                textScale = 0.8f+ (tween.Value *0.4f);
+            }, 3000, true, true);
 
             //// More crazy tween examples
             //TweenController.Instance.Create("spincam", TweenFuncs.Linear, (tween) =>
@@ -79,10 +85,35 @@ namespace LDEngine.Screens
 
         public override void Update(GameTime gameTime, bool otherScreenHasFocus, bool coveredByOtherScreen)
         {
-            camera.Target = hero.Position;
             camera.Update(gameTime);
-            hero.Update(gameTime, map);
+
+            heroPool.Update(gameTime,map);
+
+            if (Helper.Random.Next(200) == 0)
+            {
+                followingHero = (Hero)heroPool.Entities.FirstOrDefault(hero => hero.Active);
+                
+            }
+
+            if (followingHero != null && followingHero.Active)
+            {
+                camera.Target = followingHero.Position;
+                if (camera.Zoom < 3f) camera.Zoom += 0.01f;
+            }
+            else
+            {
+                camera.Target = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight)/2f;
+                if (camera.Zoom > 1f) camera.Zoom -= 0.01f;
+            }
+
             particleController.Update(gameTime, map);
+
+            if (Helper.Random.Next(50) == 0)
+                heroPool.Spawn(entity =>
+                {
+                    entity.Position = new Vector2(Helper.Random.Next(ScreenManager.Game.RenderWidth-64)+32, 32);
+                    ((Hero)entity).FaceDir = Helper.Random.Next(2) == 0 ? -1 : 1;
+                });
 
             particleController.Add(new Vector2(17, 40),
                                    new Vector2(Helper.RandomFloat(2f), -1.5f),
@@ -123,16 +154,20 @@ namespace LDEngine.Screens
             Vector2 center = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight) / 2f;
             SpriteBatch sb = ScreenManager.SpriteBatch;
 
+            ScreenManager.Game.GraphicsDevice.Clear(new Color(75,75,75));
+
             sb.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, camera.CameraMatrix);
             map.DrawLayer(sb, "bg", camera);
             map.DrawLayer(sb, "fg", camera);
-            hero.Draw(sb);
             sb.End();
+
+            heroPool.Draw(sb, camera);
 
             particleController.Draw(ScreenManager.SpriteBatch, camera, 1);
 
-            sb.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null);
-            sb.DrawString(ScreenManager.Font, "LD ENGINE", center, Color.White, textRot, ScreenManager.Font.MeasureString("LDENGINE") / 2f, 1f, SpriteEffects.None, 1);
+            sb.Begin(SpriteSortMode.Deferred, null, null, null, null);
+            sb.DrawString(ScreenManager.Font, "LD ENGINE", new Vector2(50, 20)+Vector2.One, Color.Black, 0f, ScreenManager.Font.MeasureString("LD ENGINE") / 2f, textScale, SpriteEffects.None, 1);
+            sb.DrawString(ScreenManager.Font, "LD ENGINE", new Vector2(50, 20), Color.White, 0f, ScreenManager.Font.MeasureString("LD ENGINE") / 2f, textScale, SpriteEffects.None, 1);
             sb.End();
 
             ScreenManager.FadeBackBufferToBlack(1f-TransitionAlpha);

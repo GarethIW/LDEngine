@@ -15,6 +15,8 @@ namespace TiledLib
         public Vector2 Position;
         public int Width;
         public int Height;
+        public int BoundsWidth;
+        public int BoundsHeight;
         public Vector2 Target;
         public Rectangle ClampRect;
         public float Rotation;
@@ -37,6 +39,8 @@ namespace TiledLib
             Position = new Vector2(0, 0);
             Width = width;
             Height = height;
+            BoundsWidth = boundswidth;
+            BoundsHeight = boundsheight;
 
             ClampRect = new Rectangle((Width / 2), (Height / 2), (boundswidth) - (Width / 2), (boundsheight) - (Height / 2));
 
@@ -59,6 +63,8 @@ namespace TiledLib
         public void Update(GameTime gameTime)
         {
             // Clamp target to map/camera bounds
+            ClampRect = new Rectangle((int)((Width / 2f) / Zoom), (int)((Height / 2f) / Zoom), (BoundsWidth) - (int)((Width / 2f) / Zoom), (BoundsHeight) - (int)((Height / 2f) / Zoom));
+
             Target.X = MathHelper.Clamp(Target.X, ClampRect.X, ClampRect.Width);
             Target.Y = MathHelper.Clamp(Target.Y, ClampRect.Y, ClampRect.Height);
 

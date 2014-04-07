@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" width="20" height="12" tilewidth="16" tileheight="16">
  <tileset firstgid="1" name="testtiles" tilewidth="16" tileheight="16">
-  <image source="testtiles.png" width="48" height="48"/>
+  <image source="testtiles.png" width="96" height="48"/>
   <tile id="0">
    <properties>
     <property name="CollisionSet" value="True"/>
@@ -10,7 +10,7 @@
  </tileset>
  <layer name="bg" width="20" height="12">
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NiYGBgGsWjeBQPSQwAaxKT58ADAAA=
+   H4sIAAAAAAAAC+NmYGDgHsWjeBQPSQwAod8NQ8ADAAA=
   </data>
  </layer>
  <layer name="fg" width="20" height="12">
@@ -18,7 +18,7 @@
    <property name="Collision" value="On"/>
   </properties>
   <data encoding="base64" compression="gzip">
-   H4sIAAAAAAAAC2NkYGBgpDKmFiDWPHLVYXM3KX4gRi0h+ygxjxCg1Dxc4YXLDFz+w+VnYsWIlcdlHj6Aze24zCMmjRPjdmpiAAR+IbPAAwAA
+   H4sIAAAAAAAAC+NgYGDgoDKmFiDWPHLVYXM3KX4gRi0h+ygxjxCg1Dxc4YXLDFz+w+VnYsWIlcdlHj6Aze24zCMmjRPjdmpiAAXm373AAwAA
   </data>
  </layer>
  <objectgroup name="spawn" width="20" height="12">

@@ -123,7 +123,7 @@ namespace LDEngine
                     Offset,
                     1f,
                     SpriteEffects.None,
-                    1);
+                    0);
         }
         public void Draw(SpriteBatch sb, Vector2 pos, SpriteEffects effects)
         {
@@ -135,7 +135,7 @@ namespace LDEngine
                     Offset,
                     1f,
                     effects,
-                    1);
+                    0);
         }
         public void Draw(SpriteBatch sb, Vector2 pos, SpriteEffects effects, float scale)
         {
@@ -147,7 +147,7 @@ namespace LDEngine
                     Offset,
                     scale,
                     effects,
-                    1);
+                    0);
         }
         public void Draw(SpriteBatch sb, Vector2 pos, SpriteEffects effects, float scale, float rotation)
         {
@@ -159,7 +159,7 @@ namespace LDEngine
                     Offset,
                     scale,
                     effects,
-                    1);
+                    0);
         }
         public void Draw(SpriteBatch sb, Vector2 pos, SpriteEffects effects, float scale, float rotation, Color tint)
         {
@@ -171,7 +171,7 @@ namespace LDEngine
                     Offset,
                     scale,
                     effects,
-                    1);
+                    0);
         }
         
     }

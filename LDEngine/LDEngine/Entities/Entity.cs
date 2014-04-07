@@ -11,7 +11,6 @@ namespace LDEngine.Entities
 {
     class Entity
     {
-        public string Name;
         public Vector2 Position;
         public Vector2 Speed;
         public Rectangle HitBox;
@@ -20,14 +19,11 @@ namespace LDEngine.Entities
 
         private Vector2 _hitboxOffset;
 
-        public Entity(string name, Texture2D spritesheet, Vector2 position, Vector2 speed, Rectangle hitbox, Vector2 hitboxoffset)
+        public Entity(Texture2D spritesheet, Rectangle hitbox, Vector2 hitboxoffset)
         {
-            Name = name;
-            Position = position;
-            Speed = speed;
             HitBox = hitbox;
             SpriteSheet = spritesheet;
-            Active = true;
+            Active = false;
 
             _hitboxOffset = hitboxoffset;
         }
@@ -53,6 +49,12 @@ namespace LDEngine.Entities
         public virtual void Draw(SpriteBatch sb)
         {
             if (!Active) return;
+        }
+
+        // Reset values to defaults when an entity is spawned from a pool
+        public virtual void Reset()
+        {
+            
         }
     }
 }

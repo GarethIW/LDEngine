@@ -380,7 +380,9 @@ namespace TiledLib
         }
 
         
-
+        // Returns null if a collision couldn't be detected (i.e. no such layer, out of bounds etc.)
+        // False if collision data was okay, and no collision was detected
+        // True is data was okay and collision was detected
         public bool? CheckCollision(Vector2 position)
         {
             for(int i=0;i<Layers.Count;i++)
