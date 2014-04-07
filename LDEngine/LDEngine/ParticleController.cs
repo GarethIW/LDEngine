@@ -169,24 +169,36 @@ namespace LDEngine
         public void Draw(SpriteBatch sb, Camera gameCamera, int depth)
         {
             sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
-            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done && p.Blend == ParticleBlend.Alpha && p.Depth == depth))
+            foreach (Particle p in Particles)
             {
+                if (p.State == ParticleState.Done) continue;
+                if (p.Depth != depth) continue;
+                if (p.Blend != ParticleBlend.Alpha) continue;
+
                 sb.Draw(_texParticles, 
                     p.Position,
                     p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
             }
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, BlendState.Additive, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
-            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done && p.Blend == ParticleBlend.Additive && p.Depth == depth))
+            foreach (Particle p in Particles)
             {
+                if (p.State == ParticleState.Done) continue;
+                if (p.Depth != depth) continue;
+                if (p.Blend != ParticleBlend.Additive) continue;
+
                 sb.Draw(_texParticles,
                     p.Position,
                     p.SourceRect, p.Color * p.Alpha, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
             }
             sb.End();
             sb.Begin(SpriteSortMode.Deferred, multiplicativeBlend, SamplerState.PointClamp, null, null, null, gameCamera.CameraMatrix);
-            foreach (Particle p in Particles.Where(p => p.State != ParticleState.Done && p.Blend== ParticleBlend.Multiplicative && p.Depth == depth))
+            foreach (Particle p in Particles)
             {
+                if (p.State == ParticleState.Done) continue;
+                if (p.Depth != depth) continue;
+                if (p.Blend != ParticleBlend.Multiplicative) continue;
+
                 sb.Draw(_texParticles,
                     p.Position,
                     p.SourceRect, p.Color, p.Rotation, new Vector2(p.SourceRect.Width / 2f, p.SourceRect.Height / 2f), p.Scale, SpriteEffects.None, 0);
