@@ -75,7 +75,7 @@
     <Compile Include="AudioController.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hero.cs" />
-    <Compile Include="EntityPools\EntityPool.cs" />
+    <Compile Include="Entities\EntityPool.cs" />
     <Compile Include="Helper.cs" />
     <Compile Include="ParticleController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
