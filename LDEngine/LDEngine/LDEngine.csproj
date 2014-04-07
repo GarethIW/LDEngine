@@ -72,6 +72,7 @@
     <Reference Include="System.Net" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AudioController.cs" />
     <Compile Include="Entities\Entity.cs" />
     <Compile Include="Entities\Hero.cs" />
     <Compile Include="EntityPools\EntityPool.cs" />

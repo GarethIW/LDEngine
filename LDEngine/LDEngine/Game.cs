@@ -62,6 +62,8 @@ namespace LDEngine
 
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            AudioController.LoadContent(Content);
+
             // Add the first screen here, usually either MainMenuScreen or GameplayScreen if you just want to go straight to gameplay
             screenManager.AddScreen(new ExampleGameplayScreen());
             //screenManager.AddScreen(new GameplayScreen());
@@ -72,6 +74,8 @@ namespace LDEngine
         {
             if (!IsActive) return;
 
+            AudioController.Update(gameTime);
+
             screenManager.Update(gameTime);
 
             timerController.Update(gameTime);
@@ -81,12 +85,12 @@ namespace LDEngine
             if (screenManager.Input.CurrentKeyboardState.IsKeyDown(Keys.F12)) this.Exit();
 
             // PgUp/PgDn change the display scaling
-            if (screenManager.Input.CurrentKeyboardState.IsKeyDown(Keys.PageDown) && !screenManager.Input.LastKeyboardState.IsKeyDown(Keys.PageDown) && DisplayScale > 1)
+            if (screenManager.Input.CurrentKeyboardState.IsKeyDown(Keys.PageDown) && !screenManager.Input.LastKeyboardState.IsKeyDown(Keys.PageDown) && DisplayScale > MIN_SCALE)
             {
                 DisplayScale--;
                 ChangeDisplayScale();
             }
-            if (screenManager.Input.CurrentKeyboardState.IsKeyDown(Keys.PageUp) && !screenManager.Input.LastKeyboardState.IsKeyDown(Keys.PageUp) && DisplayScale < 6)
+            if (screenManager.Input.CurrentKeyboardState.IsKeyDown(Keys.PageUp) && !screenManager.Input.LastKeyboardState.IsKeyDown(Keys.PageUp) && DisplayScale < MAX_SCALE)
             {
                 DisplayScale++;
                 ChangeDisplayScale();
