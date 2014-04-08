@@ -15,6 +15,7 @@ namespace LDEngine.EntityPools
         public static EntityPool Instance;
 
         public List<Entity> Entities;
+        public List<object> CollidesWith; 
 
         private int _maxEntities;
 
@@ -26,6 +27,8 @@ namespace LDEngine.EntityPools
 
             Entities = new List<Entity>();
             for(int i=0;i<maxEntities;i++) Entities.Add(createFunc(spriteSheet));
+
+            CollidesWith = new List<object>();
         }
 
         public virtual void Update(GameTime gameTime)
@@ -34,7 +37,11 @@ namespace LDEngine.EntityPools
         }
         public virtual void Update(GameTime gameTime, Map gameMap)
         {
-            foreach (Entity e in Entities.Where(ent => ent.Active)) e.Update(gameTime, gameMap);
+            foreach (Entity e in Entities.Where(ent => ent.Active))
+            {
+                e.Update(gameTime, gameMap);
+                CheckCollisions(e);
+            }
         }
 
         public virtual void HandleInput(InputState input)
@@ -67,6 +74,42 @@ namespace LDEngine.EntityPools
             retEntity.Active = true;
 
             return retEntity;
+        }
+
+       
+
+        private void CheckCollisions(Entity e)
+        {
+            foreach (object o in CollidesWith)
+            {
+                if (o is EntityPool)
+                {
+                    foreach (Entity collEnt in ((EntityPool)o).Entities)
+                    {
+                        if (!collEnt.Active) continue;
+                        if (collEnt == e) continue;
+
+                        Rectangle intersect = Rectangle.Intersect(e.HitBox, collEnt.HitBox);
+                        if (intersect.IsEmpty) continue;
+
+                        e.OnCollision(collEnt, intersect);
+                    }
+                }
+
+                if (o is Entity)
+                {
+                    Entity collEnt = (Entity)o;
+
+                    if (!collEnt.Active) continue;
+                    if (collEnt == e) continue;
+
+                    Rectangle intersect = Rectangle.Intersect(e.HitBox, collEnt.HitBox);
+                    if (intersect.IsEmpty) continue;
+
+                    e.OnCollision(collEnt, intersect);
+                    collEnt.OnCollision(e,intersect);
+                }
+            }
         }
     }
 }

@@ -41,6 +41,9 @@ namespace LDEngine.Entities
             Update(gameTime);
         }
 
+        public virtual void OnCollision(Entity collided, Rectangle intersect)
+        {}
+
         public virtual void HandleInput(InputState input)
         {
             

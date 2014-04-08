@@ -48,7 +48,7 @@ namespace LDEngine.Screens
             heroPool = new EntityPool(100, 
                                       sheet => new Hero(sheet, new Rectangle(0, 0, 10, 10), new Vector2(0, -5)),
                                       content.Load<Texture2D>("testhero"));
-            
+            heroPool.CollidesWith.Add(heroPool);
 
             particleController.LoadContent(content);
 
@@ -89,30 +89,29 @@ namespace LDEngine.Screens
 
             heroPool.Update(gameTime,map);
 
-
             // This stuff is all example - camera follows random Hero and zooms in when following
-            if (Helper.Random.Next(200) == 0)
-            {
-                List<Entity> activeHeroes = heroPool.Entities.Where(hero => hero.Active).ToList();
-                if (activeHeroes.Count > 0) followingHero = (Hero) activeHeroes[Helper.Random.Next(activeHeroes.Count)];
-            }
-            if (Helper.Random.Next(200) == 1 && followingHero != null) followingHero = null;
+            //if (Helper.Random.Next(200) == 0)
+            //{
+            //    List<Entity> activeHeroes = heroPool.Entities.Where(hero => hero.Active).ToList();
+            //    if (activeHeroes.Count > 0) followingHero = (Hero) activeHeroes[Helper.Random.Next(activeHeroes.Count)];
+            //}
+            //if (Helper.Random.Next(200) == 1 && followingHero != null) followingHero = null;
 
-            if (followingHero != null && followingHero.Active)
-            {
-                camera.Target = followingHero.Position;
-                if (camera.Zoom < 2.5f) camera.Zoom += 0.05f;
-            }
-            else
-            {
-                camera.Target = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight)/2f;
-                if (camera.Zoom > 1f) camera.Zoom -= 0.05f;
-            }
+            //if (followingHero != null && followingHero.Active)
+            //{
+            //    camera.Target = followingHero.Position;
+            //    if (camera.Zoom < 2.5f) camera.Zoom += 0.05f;
+            //}
+            //else
+            //{
+            //    camera.Target = new Vector2(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight)/2f;
+            //    if (camera.Zoom > 1f) camera.Zoom -= 0.05f;
+            //}
             //////////////////
 
             particleController.Update(gameTime, map);
 
-            if (Helper.Random.Next(50) == 0)
+            if (Helper.Random.Next(100) == 0)
                 heroPool.Spawn(entity =>
                 {
                     entity.Position = new Vector2(Helper.Random.Next(ScreenManager.Game.RenderWidth-64)+32, 32);
@@ -165,7 +164,11 @@ namespace LDEngine.Screens
             map.DrawLayer(sb, "fg", camera);
             sb.End();
 
+
+
             heroPool.Draw(sb, camera);
+
+            
 
             particleController.Draw(ScreenManager.SpriteBatch, camera, 1);
 

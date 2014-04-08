@@ -21,6 +21,8 @@ namespace LDEngine.Entities
         private SpriteAnim _idleAnim;
         private SpriteAnim _runAnim;
 
+        private Color _tint = Color.White;
+
         public Hero(Texture2D spritesheet, Rectangle hitbox, Vector2 hitboxoffset) 
             : base(spritesheet, hitbox, hitboxoffset)
         {
@@ -41,12 +43,23 @@ namespace LDEngine.Entities
             Life--;
             if (Life <= 0) Active = false;
 
-            CheckCollisions(gameMap);
+            CheckMapCollisions(gameMap);
+
+            _tint = Color.White;
 
             base.Update(gameTime, gameMap);
         }
 
-        private void CheckCollisions(Map gameMap)
+        public override void OnCollision(Entity collided, Rectangle intersect)
+        {
+            // Collides with another Hero
+            if (collided.GetType() == typeof (Hero)) _tint = Color.Red;
+                
+
+            base.OnCollision(collided, intersect);
+        }
+
+        private void CheckMapCollisions(Map gameMap)
         {
             // Check downward collision
             if(Speed.Y>0)
@@ -84,7 +97,7 @@ namespace LDEngine.Entities
         public override void Draw(SpriteBatch sb)
         {
             //_idleAnim.Draw(sb, Position);
-            _runAnim.Draw(sb,Position,FaceDir==-1?SpriteEffects.FlipHorizontally:SpriteEffects.None);
+            _runAnim.Draw(sb,Position,FaceDir==-1?SpriteEffects.FlipHorizontally:SpriteEffects.None, 1f, 0f, _tint);
             base.Draw(sb);
         }
 
