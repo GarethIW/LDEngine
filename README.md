@@ -12,7 +12,7 @@ LDEngine is a 2D pixelart engine/framework for XNA and [Monogame](https://github
 * Gamestate management using a lightly-modified version of the good old [Game State Management sample](http://xbox.create.msdn.com/en-US/education/catalog/sample/game_state_management)
 * Entities and pooling (Work in progress)
 * Particles
-* Sound effects and music playback (Currently not present)
+* Rudimentary sound effects and music playback
 * Windows, Linux and MacOS support (Work in progress)
 
 ![Animgif](http://i.imgur.com/R4jI3h0.gif)
