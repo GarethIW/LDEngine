@@ -24,6 +24,7 @@ namespace LDEngine.Screens
         private Texture2D heroSheet;
 
         private EntityPool heroPool;
+        private EntityPool rotBoxPool;
 
         private float textScale = 0f;
 
@@ -48,7 +49,21 @@ namespace LDEngine.Screens
             heroPool = new EntityPool(100, 
                                       sheet => new Hero(sheet, new Rectangle(0, 0, 10, 10), new Vector2(0, -5)),
                                       content.Load<Texture2D>("testhero"));
-            heroPool.CollidesWith.Add(heroPool);
+            heroPool.BoxCollidesWith.Add(heroPool);
+
+            rotBoxPool = new EntityPool(100,
+                                     sheet => new RotBox(sheet, new Rectangle(0, 0, 32, 32), null, Vector2.Zero),
+                                     ScreenManager.blankTexture);
+            rotBoxPool.PolyCollidesWith.Add(rotBoxPool);
+
+            rotBoxPool.Spawn(entity =>
+                {
+                    entity.Position = new Vector2(100,100);
+                });
+            rotBoxPool.Spawn(entity =>
+            {
+                entity.Position = new Vector2(140, 100);
+            });
 
             particleController.LoadContent(content);
 
@@ -88,6 +103,7 @@ namespace LDEngine.Screens
             camera.Update(gameTime);
 
             heroPool.Update(gameTime,map);
+            rotBoxPool.Update(gameTime);
 
             // This stuff is all example - camera follows random Hero and zooms in when following
             //if (Helper.Random.Next(200) == 0)
@@ -108,6 +124,8 @@ namespace LDEngine.Screens
             //    if (camera.Zoom > 1f) camera.Zoom -= 0.05f;
             //}
             //////////////////
+
+
 
             particleController.Update(gameTime, map);
 
@@ -168,14 +186,17 @@ namespace LDEngine.Screens
 
             heroPool.Draw(sb, camera);
 
-            
+            rotBoxPool.Draw(sb, camera);
 
             particleController.Draw(ScreenManager.SpriteBatch, camera, 1);
 
             sb.Begin(SpriteSortMode.Deferred, null, null, null, null);
             sb.DrawString(ScreenManager.Font, "LD ENGINE", new Vector2(50, 20)+Vector2.One, Color.Black, 0f, ScreenManager.Font.MeasureString("LD ENGINE") / 2f, textScale, SpriteEffects.None, 1);
             sb.DrawString(ScreenManager.Font, "LD ENGINE", new Vector2(50, 20), Color.White, 0f, ScreenManager.Font.MeasureString("LD ENGINE") / 2f, textScale, SpriteEffects.None, 1);
+
             sb.End();
+
+            
 
             ScreenManager.FadeBackBufferToBlack(1f-TransitionAlpha);
 

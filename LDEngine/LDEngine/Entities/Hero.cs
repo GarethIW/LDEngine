@@ -24,7 +24,7 @@ namespace LDEngine.Entities
         private Color _tint = Color.White;
 
         public Hero(Texture2D spritesheet, Rectangle hitbox, Vector2 hitboxoffset) 
-            : base(spritesheet, hitbox, hitboxoffset)
+            : base(spritesheet, hitbox, null, hitboxoffset)
         {
             _idleAnim = new SpriteAnim(spritesheet, 0, 1, 16,16,0, new Vector2(8f,16f));
             _runAnim = new SpriteAnim(spritesheet, 1, 7, 16, 16, 60, new Vector2(8f,16f));
@@ -50,13 +50,13 @@ namespace LDEngine.Entities
             base.Update(gameTime, gameMap);
         }
 
-        public override void OnCollision(Entity collided, Rectangle intersect)
+        public override void OnBoxCollision(Entity collided, Rectangle intersect)
         {
             // Collides with another Hero
             if (collided.GetType() == typeof (Hero)) _tint = Color.Red;
                 
 
-            base.OnCollision(collided, intersect);
+            base.OnBoxCollision(collided, intersect);
         }
 
         private void CheckMapCollisions(Map gameMap)

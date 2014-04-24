@@ -15,7 +15,9 @@ namespace LDEngine.EntityPools
         public static EntityPool Instance;
 
         public List<Entity> Entities;
-        public List<object> CollidesWith; 
+        public List<object> BoxCollidesWith;
+        public List<object> PolyCollidesWith;
+
 
         private int _maxEntities;
 
@@ -28,12 +30,17 @@ namespace LDEngine.EntityPools
             Entities = new List<Entity>();
             for(int i=0;i<maxEntities;i++) Entities.Add(createFunc(spriteSheet));
 
-            CollidesWith = new List<object>();
+            BoxCollidesWith = new List<object>();
+            PolyCollidesWith = new List<object>();
         }
 
         public virtual void Update(GameTime gameTime)
         {
-            foreach (Entity e in Entities.Where(ent => ent.Active)) e.Update(gameTime);
+            foreach (Entity e in Entities.Where(ent => ent.Active))
+            {
+                e.Update(gameTime);
+                CheckCollisions(e);
+            }
         }
         public virtual void Update(GameTime gameTime, Map gameMap)
         {
@@ -80,7 +87,7 @@ namespace LDEngine.EntityPools
 
         private void CheckCollisions(Entity e)
         {
-            foreach (object o in CollidesWith)
+            foreach (object o in BoxCollidesWith)
             {
                 if (o is EntityPool)
                 {
@@ -92,7 +99,7 @@ namespace LDEngine.EntityPools
                         Rectangle intersect = Rectangle.Intersect(e.HitBox, collEnt.HitBox);
                         if (intersect.IsEmpty) continue;
 
-                        e.OnCollision(collEnt, intersect);
+                        e.OnBoxCollision(collEnt, intersect);
                     }
                 }
 
@@ -106,8 +113,43 @@ namespace LDEngine.EntityPools
                     Rectangle intersect = Rectangle.Intersect(e.HitBox, collEnt.HitBox);
                     if (intersect.IsEmpty) continue;
 
-                    e.OnCollision(collEnt, intersect);
-                    collEnt.OnCollision(e,intersect);
+                    e.OnBoxCollision(collEnt, intersect);
+                    collEnt.OnBoxCollision(e, intersect);
+                }
+            }
+
+            foreach (object o in PolyCollidesWith)
+            {
+                if (o is EntityPool)
+                {
+                    foreach (Entity collEnt in ((EntityPool)o).Entities)
+                    {
+                        if (!collEnt.Active) continue;
+                        if (collEnt == e) continue;
+
+                        bool collides = false;
+                        foreach (Vector2 vector2 in e.HitPolyPoints)
+                            if (Helper.IsPointInShape(vector2, collEnt.HitPolyPoints)) collides = true;
+                        if (!collides) continue;
+
+                        e.OnPolyCollision(collEnt);
+                    }
+                }
+
+                if (o is Entity)
+                {
+                    Entity collEnt = (Entity)o;
+
+                    if (!collEnt.Active) continue;
+                    if (collEnt == e) continue;
+
+                    bool collides = false;
+                    foreach (Vector2 vector2 in e.HitPolyPoints)
+                        if (Helper.IsPointInShape(vector2, collEnt.HitPolyPoints)) collides = true;
+                    if (!collides) continue;
+
+                    e.OnPolyCollision(collEnt);
+                    collEnt.OnPolyCollision(e);
                 }
             }
         }
