@@ -2,7 +2,6 @@ using System;
 
 namespace LDEngine
 {
-#if WINDOWS || XBOX
     static class Program
     {
         /// <summary>
@@ -16,6 +15,5 @@ namespace LDEngine
             }
         }
     }
-#endif
 }
 
