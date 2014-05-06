@@ -7,86 +7,86 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace TiledLib
 {
-	/// <summary>
-	/// A full map from Tiled.
-	/// </summary>
-	public class Map
-	{
-		private readonly Dictionary<string, Layer> namedLayers = new Dictionary<string, Layer>();
-		
-		/// <summary>
-		/// Gets the version of Tiled used to create the Map.
-		/// </summary>
-		public Version Version { get; private set; }
+    /// <summary>
+    /// A full map from Tiled.
+    /// </summary>
+    public class Map
+    {
+        private readonly Dictionary<string, Layer> namedLayers = new Dictionary<string, Layer>();
+        
+        /// <summary>
+        /// Gets the version of Tiled used to create the Map.
+        /// </summary>
+        public Version Version { get; private set; }
 
-		/// <summary>
-		/// Gets the orientation of the map.
-		/// </summary>
-		public Orientation Orientation { get; private set; }
+        /// <summary>
+        /// Gets the orientation of the map.
+        /// </summary>
+        public Orientation Orientation { get; private set; }
 
-		/// <summary>
-		/// Gets the width (in tiles) of the map.
-		/// </summary>
-		public int Width { get; private set; }
+        /// <summary>
+        /// Gets the width (in tiles) of the map.
+        /// </summary>
+        public int Width { get; private set; }
 
-		/// <summary>
-		/// Gets the height (in tiles) of the map.
-		/// </summary>
-		public int Height { get; private set; }
+        /// <summary>
+        /// Gets the height (in tiles) of the map.
+        /// </summary>
+        public int Height { get; private set; }
 
-		/// <summary>
-		/// Gets the width of a tile in the map.
-		/// </summary>
-		public int TileWidth { get; private set; }
+        /// <summary>
+        /// Gets the width of a tile in the map.
+        /// </summary>
+        public int TileWidth { get; private set; }
 
-		/// <summary>
-		/// Gets the height of a tile in the map.
-		/// </summary>
-		public int TileHeight { get; private set; }
+        /// <summary>
+        /// Gets the height of a tile in the map.
+        /// </summary>
+        public int TileHeight { get; private set; }
 
-		/// <summary>
-		/// Gets a list of the map's properties.
-		/// </summary>
-		public PropertyCollection Properties { get; private set; }
+        /// <summary>
+        /// Gets a list of the map's properties.
+        /// </summary>
+        public PropertyCollection Properties { get; private set; }
 
-		/// <summary>
-		/// Gets a collection of all of the tiles in the map.
-		/// </summary>
-		public Collection<Tile> Tiles { get; private set; }
+        /// <summary>
+        /// Gets a collection of all of the tiles in the map.
+        /// </summary>
+        public Collection<Tile> Tiles { get; private set; }
 
-		/// <summary>
-		/// Gets a collection of all of the layers in the map.
-		/// </summary>
-		public ReadOnlyCollection<Layer> Layers { get; private set; }
+        /// <summary>
+        /// Gets a collection of all of the layers in the map.
+        /// </summary>
+        public ReadOnlyCollection<Layer> Layers { get; private set; }
 
         //private Layer collisionLayer;
-	
-		internal Map(ContentReader reader) 
-		{
-			// read in the basic map information
-			Version = new Version(reader.ReadString());
-			Orientation = (Orientation)reader.ReadByte();
-			Width = reader.ReadInt32();
-			Height = reader.ReadInt32();
-			TileWidth = reader.ReadInt32();
-			TileHeight = reader.ReadInt32();
-			Properties = new PropertyCollection();
-			Properties.Read(reader);
+    
+        internal Map(ContentReader reader) 
+        {
+            // read in the basic map information
+            Version = new Version(reader.ReadString());
+            Orientation = (Orientation)reader.ReadByte();
+            Width = reader.ReadInt32();
+            Height = reader.ReadInt32();
+            TileWidth = reader.ReadInt32();
+            TileHeight = reader.ReadInt32();
+            Properties = new PropertyCollection();
+            Properties.Read(reader);
 
-			// create a list for our tiles
-			List<Tile> tiles = new List<Tile>();
-			Tiles = new Collection<Tile>(tiles);
+            // create a list for our tiles
+            List<Tile> tiles = new List<Tile>();
+            Tiles = new Collection<Tile>(tiles);
 
-			// read in each tile set
-			int numTileSets = reader.ReadInt32();
-			for (int i = 0; i < numTileSets; i++)
-			{
-				// get the id and texture
-				int firstId = reader.ReadInt32();
+            // read in each tile set
+            int numTileSets = reader.ReadInt32();
+            for (int i = 0; i < numTileSets; i++)
+            {
+                // get the id and texture
+                int firstId = reader.ReadInt32();
                 string tilesetName = reader.ReadString();
                 bool collisionSet = reader.ReadBoolean();
 
-				Texture2D texture = reader.ReadExternalReference<Texture2D>();
+                Texture2D texture = reader.ReadExternalReference<Texture2D>();
 
                 // Read in color data for collision purposes
                 // You'll probably want to limit this to just the tilesets that are used for collision
@@ -103,90 +103,90 @@ namespace TiledLib
                     collisionData = null;
                 }
 
-				// read in each individual tile
-				int numTiles = reader.ReadInt32();
-				for (int j = 0; j < numTiles; j++)
-				{
-					int id = firstId + j;
-					Rectangle source = reader.ReadObject<Rectangle>();
-					PropertyCollection props = new PropertyCollection();
-					props.Read(reader);
+                // read in each individual tile
+                int numTiles = reader.ReadInt32();
+                for (int j = 0; j < numTiles; j++)
+                {
+                    int id = firstId + j;
+                    Rectangle source = reader.ReadObject<Rectangle>();
+                    PropertyCollection props = new PropertyCollection();
+                    props.Read(reader);
 
-					Tile t = new Tile(texture, source, props, collisionBitData);
-					while (id >= tiles.Count)
-					{
-						tiles.Add(null);
-					}
-					tiles.Insert(id, t);
-				}
-			}
+                    Tile t = new Tile(texture, source, props, collisionBitData);
+                    while (id >= tiles.Count)
+                    {
+                        tiles.Add(null);
+                    }
+                    tiles.Insert(id, t);
+                }
+            }
 
-			// read in all the layers
-			List<Layer> layers = new List<Layer>();
-			Layers = new ReadOnlyCollection<Layer>(layers);
-			int numLayers = reader.ReadInt32();
-			for (int i = 0; i < numLayers; i++)
-			{
-				Layer layer = null;
+            // read in all the layers
+            List<Layer> layers = new List<Layer>();
+            Layers = new ReadOnlyCollection<Layer>(layers);
+            int numLayers = reader.ReadInt32();
+            for (int i = 0; i < numLayers; i++)
+            {
+                Layer layer = null;
 
-				// read generic layer data
-				string type = reader.ReadString();
-				string name = reader.ReadString();
-				int width = reader.ReadInt32();
-				int height = reader.ReadInt32();
-				bool visible = reader.ReadBoolean();
-				float opacity = reader.ReadSingle();
-				PropertyCollection props = new PropertyCollection();
-				props.Read(reader);
+                // read generic layer data
+                string type = reader.ReadString();
+                string name = reader.ReadString();
+                int width = reader.ReadInt32();
+                int height = reader.ReadInt32();
+                bool visible = reader.ReadBoolean();
+                float opacity = reader.ReadSingle();
+                PropertyCollection props = new PropertyCollection();
+                props.Read(reader);
 
-				// using the type, figure out which object to create
-				if (type == "layer")
-				{
-					int[] data = reader.ReadObject<int[]>();
-					layer = new TileLayer(name, width, height, visible, opacity, props, this, data);
-				}
-				else if (type == "objectgroup")
-				{
-					List<MapObject> objects = new List<MapObject>();
+                // using the type, figure out which object to create
+                if (type == "layer")
+                {
+                    int[] data = reader.ReadObject<int[]>();
+                    layer = new TileLayer(name, width, height, visible, opacity, props, this, data);
+                }
+                else if (type == "objectgroup")
+                {
+                    List<MapObject> objects = new List<MapObject>();
 
-					// read in all of our objects
-					int numObjects = reader.ReadInt32();
-					for (int j = 0; j < numObjects; j++)
-					{
-						string objName = reader.ReadString();
-						string objType = reader.ReadString();
-						Rectangle objLoc = reader.ReadObject<Rectangle>();
+                    // read in all of our objects
+                    int numObjects = reader.ReadInt32();
+                    for (int j = 0; j < numObjects; j++)
+                    {
+                        string objName = reader.ReadString();
+                        string objType = reader.ReadString();
+                        Rectangle objLoc = reader.ReadObject<Rectangle>();
                         List<Point> objPoints = reader.ReadObject<List<Point>>();
-						PropertyCollection objProps = new PropertyCollection();
-						objProps.Read(reader);
+                        PropertyCollection objProps = new PropertyCollection();
+                        objProps.Read(reader);
 
-						objects.Add(new MapObject(objName, objType, objLoc, objPoints, objProps));
-					}
+                        objects.Add(new MapObject(objName, objType, objLoc, objPoints, objProps));
+                    }
 
-					layer = new MapObjectLayer(name, width, height, visible, opacity, props, objects);
-				}
-				else
-				{
-					throw new Exception("Invalid type: " + type);
-				}
+                    layer = new MapObjectLayer(name, width, height, visible, opacity, props, objects);
+                }
+                else
+                {
+                    throw new Exception("Invalid type: " + type);
+                }
 
-				layers.Add(layer);
-				namedLayers.Add(name, layer);
-			}
-		}
+                layers.Add(layer);
+                namedLayers.Add(name, layer);
+            }
+        }
 
-		/// <summary>
-		/// Gets a layer by name.
-		/// </summary>
-		/// <param name="name">The name of the layer to retrieve.</param>
-		/// <returns>The layer with the given name.</returns>
-		public Layer GetLayer(string name)
-		{
+        /// <summary>
+        /// Gets a layer by name.
+        /// </summary>
+        /// <param name="name">The name of the layer to retrieve.</param>
+        /// <returns>The layer with the given name.</returns>
+        public Layer GetLayer(string name)
+        {
             if (namedLayers.ContainsKey(name))
                 return namedLayers[name];
             else
                 return null;
-		}
+        }
 
         /// <summary>
         /// Draws all layers of the map
@@ -257,8 +257,8 @@ namespace TiledLib
                 return;
 
             TileLayer tileLayer = l as TileLayer;
-			if (tileLayer != null)
-			{
+            if (tileLayer != null)
+            {
                 if (tileLayer.Properties.Contains("Shadows"))
                     DrawLayer(spriteBatch, tileLayer.Name, gameCamera, new Vector2(-10f, -10f), 0.2f);
 
@@ -313,8 +313,8 @@ namespace TiledLib
                 return;
 
             TileLayer tileLayer = l as TileLayer;
-			if (tileLayer != null)
-			{
+            if (tileLayer != null)
+            {
                 //for (float mult = 0f; mult < 1f; mult += 0.1f)
                 //{
                     DrawLayer(spriteBatch, l, gameCamera, shadowOffset, alpha, Color.Black);
