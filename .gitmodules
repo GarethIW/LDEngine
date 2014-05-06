@@ -1,0 +1,6 @@
+[submodule "ThirdParty/TiledSharp"]
+	path = ThirdParty/TiledSharp
+	url = https://github.com/marshallward/TiledSharp.git
+[submodule "ThirdParty/MonoGame-SDL2"]
+	path = ThirdParty/MonoGame-SDL2
+	url = https://github.com/flibitijibibo/MonoGame.git
