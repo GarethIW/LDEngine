@@ -16,6 +16,11 @@ namespace TiledLib
 
 		internal PropertyCollection() { }
 
+        public void Add(KeyValuePair<string, string> kvp)
+        {
+            Add(kvp.Key, kvp.Value);
+        }
+
 		internal void Add(string key, string value)
 		{
             if (this.Contains(key)) key = key + Guid.NewGuid().ToString();

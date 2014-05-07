@@ -40,7 +40,9 @@ namespace LDEngine.Screens
         {
             ContentManager content = ScreenManager.Game.Content;
 
-            map = content.Load<Map>("map");
+            //map = content.Load<Map>("map");   // Old XNB loader
+            map = new Map(content, "map");
+
             MapObject spawn = ((MapObjectLayer) map.GetLayer("spawn")).Objects[0];
 
             camera = new Camera(ScreenManager.Game.RenderWidth, ScreenManager.Game.RenderHeight, map);
