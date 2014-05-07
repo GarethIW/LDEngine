@@ -5,188 +5,440 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
+using TiledSharp;
+
 namespace TiledLib
 {
-	/// <summary>
-	/// A full map from Tiled.
-	/// </summary>
-	public class Map
-	{
-		private readonly Dictionary<string, Layer> namedLayers = new Dictionary<string, Layer>();
-		
-		/// <summary>
-		/// Gets the version of Tiled used to create the Map.
-		/// </summary>
-		public Version Version { get; private set; }
+    /// <summary>
+    /// A full map from Tiled.
+    /// </summary>
+    public class Map
+    {
+        private readonly Dictionary<string, Layer> namedLayers = new Dictionary<string, Layer>();
+        
+        /// <summary>
+        /// Gets the version of Tiled used to create the Map.
+        /// </summary>
+        public Version Version { get; private set; }
 
-		/// <summary>
-		/// Gets the orientation of the map.
-		/// </summary>
-		public Orientation Orientation { get; private set; }
+        /// <summary>
+        /// Gets the orientation of the map.
+        /// </summary>
+        public Orientation Orientation { get; private set; }
 
-		/// <summary>
-		/// Gets the width (in tiles) of the map.
-		/// </summary>
-		public int Width { get; private set; }
+        /// <summary>
+        /// Gets the width (in tiles) of the map.
+        /// </summary>
+        public int Width { get; private set; }
 
-		/// <summary>
-		/// Gets the height (in tiles) of the map.
-		/// </summary>
-		public int Height { get; private set; }
+        /// <summary>
+        /// Gets the height (in tiles) of the map.
+        /// </summary>
+        public int Height { get; private set; }
 
-		/// <summary>
-		/// Gets the width of a tile in the map.
-		/// </summary>
-		public int TileWidth { get; private set; }
+        /// <summary>
+        /// Gets the width of a tile in the map.
+        /// </summary>
+        public int TileWidth { get; private set; }
 
-		/// <summary>
-		/// Gets the height of a tile in the map.
-		/// </summary>
-		public int TileHeight { get; private set; }
+        /// <summary>
+        /// Gets the height of a tile in the map.
+        /// </summary>
+        public int TileHeight { get; private set; }
 
-		/// <summary>
-		/// Gets a list of the map's properties.
-		/// </summary>
-		public PropertyCollection Properties { get; private set; }
+        /// <summary>
+        /// Gets a list of the map's properties.
+        /// </summary>
+        public PropertyCollection Properties { get; private set; }
 
-		/// <summary>
-		/// Gets a collection of all of the tiles in the map.
-		/// </summary>
-		public Collection<Tile> Tiles { get; private set; }
+        /// <summary>
+        /// Gets a collection of all of the tiles in the map.
+        /// </summary>
+        public Collection<Tile> Tiles { get; private set; }
 
-		/// <summary>
-		/// Gets a collection of all of the layers in the map.
-		/// </summary>
-		public ReadOnlyCollection<Layer> Layers { get; private set; }
+        /// <summary>
+        /// Gets a collection of all of the layers in the map.
+        /// </summary>
+        public Collection<Layer> Layers { get; private set; }
 
         //private Layer collisionLayer;
-	
-		internal Map(ContentReader reader) 
-		{
-			// read in the basic map information
-			Version = new Version(reader.ReadString());
-			Orientation = (Orientation)reader.ReadByte();
-			Width = reader.ReadInt32();
-			Height = reader.ReadInt32();
-			TileWidth = reader.ReadInt32();
-			TileHeight = reader.ReadInt32();
-			Properties = new PropertyCollection();
-			Properties.Read(reader);
+    
+        // Construct a TiledLib.Map from a TmxReader.map
+        public Map(ContentManager content, string mapName)
+        {
+            string mapPath = AppDomain.CurrentDomain.BaseDirectory +
+                "Content/" +
+                mapName +
+                ".tmx";
 
-			// create a list for our tiles
-			List<Tile> tiles = new List<Tile>();
-			Tiles = new Collection<Tile>(tiles);
+            TmxMap tmx = new TmxMap(mapPath);
 
-			// read in each tile set
-			int numTileSets = reader.ReadInt32();
-			for (int i = 0; i < numTileSets; i++)
-			{
-				// get the id and texture
-				int firstId = reader.ReadInt32();
-                string tilesetName = reader.ReadString();
-                bool collisionSet = reader.ReadBoolean();
+            Version = new Version(tmx.Version);
 
-				Texture2D texture = reader.ReadExternalReference<Texture2D>();
+            switch(tmx.Orientation)
+            {
+                case TmxMap.OrientationType.Isometric:
+                    Orientation = Orientation.Isometric;
+                    break;
+                case TmxMap.OrientationType.Orthogonal:
+                    Orientation = Orientation.Orthogonal;
+                    break;
+                case TmxMap.OrientationType.Staggered:
+                    throw new Exception(
+                        "TiledLib doesn't support maps with Staggered " +
+                        "orientation.");
+            }
 
-                // Read in color data for collision purposes
-                // You'll probably want to limit this to just the tilesets that are used for collision
-                // I'm checking for the name of my tileset that contains wall tiles
-                // Color data takes up a fair bit of RAM
-                Color[] collisionData = null;
-                bool[] collisionBitData = null;
-                if (collisionSet)
+            Width = tmx.Width;
+            Height = tmx.Height;
+            TileWidth = tmx.TileWidth;
+            TileHeight = tmx.TileHeight;
+
+            Properties = new PropertyCollection();
+            foreach(KeyValuePair<string, string> kvp in tmx.Properties)
+            {
+                Properties.Add(kvp);
+            }
+
+            // Create a list for our tiles
+            List<Tile> tiles = new List<Tile>();
+            Tiles = new Collection<Tile>(tiles);
+
+            // Read in each TileSet
+            foreach (TmxTileset ts in tmx.Tilesets)
+            {
+                string tilesetName = ts.Name;
+                Texture2D texture = content.Load<Texture2D>(ts.Image.Source);
+
+                bool collisionSet = ts.Properties.ContainsKey("CollisionSet") && 
+                    ts.Properties["CollisionSet"] == "True" ?
+                    true : false;
+
+                /* TODO:  Add this intelligence to TiledSharp.
+                 * If the texture is bigger than a individual tile, infer all the
+                 * additional tiles that must be created.
+                 */
+
+                if (texture.Width > ts.TileWidth || texture.Height > ts.TileHeight)
                 {
-                    collisionData = new Color[texture.Width * texture.Height];
-                    collisionBitData = new bool[texture.Width * texture.Height];
-                    texture.GetData<Color>(collisionData);
-                    for (int col = 0; col < collisionData.Length; col++) if (collisionData[col].A > 0) collisionBitData[col] = true;
-                    collisionData = null;
+                    // Deconstruct tileset to individual tiles
+                    int id = 0;
+                    for (int y = 0; y < texture.Height / ts.TileHeight; y++)
+                    {
+                        for (int x = 0; x < texture.Width / ts.TileWidth; x++)
+                        {
+                            Rectangle source = new Rectangle(
+                                x * ts.TileWidth,
+                                y * ts.TileHeight,
+                                ts.TileWidth,
+                                ts.TileHeight
+                            );
+
+                            Color[] collisionData = null;
+                            bool[] collisionBitData = null;
+                            PropertyCollection props = new PropertyCollection();
+
+                            TmxTilesetTile tsTile = ts.Tiles.Find(i => i.Id == id); 
+                            if(tsTile != null)
+                            {
+                                foreach (KeyValuePair<string, string> kvp in
+                                    tsTile.Properties)
+                                {
+                                    props.Add(kvp);
+
+                                    // Inherit tilesets collision
+                                    bool collidable = collisionSet;
+                                    if (kvp.Key == "CollisionSet")
+                                    {
+                                        // Allow override per tile
+                                        if (kvp.Value == "True")
+                                        {
+                                            collidable = true;
+                                        } else
+                                        {
+                                            collidable = false;
+                                        }
+                                    }
+                                    if (collidable)
+                                    {
+                                        int numOfBytes = ts.TileWidth * ts.TileHeight;
+                                        collisionData = new Color[numOfBytes];
+                                        collisionBitData = new bool[numOfBytes];
+
+                                        texture.GetData<Color>(
+                                            0,
+                                            source,
+                                            collisionData,
+                                            0,
+                                            numOfBytes
+                                        );
+
+                                        for (int col = 0; col < numOfBytes; col++)
+                                        {
+                                            if (collisionData[col].A > 0)
+                                            {
+                                                collisionBitData[col] = true;
+                                            }
+                                        }
+                                        collisionData = null;
+                                    }
+                                }
+                            }
+
+                            Tile t = new Tile(
+                                texture,
+                                source,
+                                props,
+                                collisionBitData
+                            );
+
+                            while (id >= tiles.Count)
+                            {
+                                tiles.Add(null);
+                            }
+                            tiles.Insert(id + ts.FirstGid, t);
+                            id++;
+                        }
+                    }
+                }
+            }
+
+            // Process Map Items (layers, objectgroups, etc.)
+            List<Layer> layers = new List<Layer>();
+            Layers = new Collection<Layer>(layers);
+
+            foreach(TmxLayer l in tmx.Layers)
+            {
+                Layer layer = null;
+
+                PropertyCollection props = new PropertyCollection();
+                foreach(KeyValuePair<string, string> kvp in l.Properties)
+                {
+                    props.Add(kvp);
                 }
 
-				// read in each individual tile
-				int numTiles = reader.ReadInt32();
-				for (int j = 0; j < numTiles; j++)
-				{
-					int id = firstId + j;
-					Rectangle source = reader.ReadObject<Rectangle>();
-					PropertyCollection props = new PropertyCollection();
-					props.Read(reader);
 
-					Tile t = new Tile(texture, source, props, collisionBitData);
-					while (id >= tiles.Count)
-					{
-						tiles.Add(null);
-					}
-					tiles.Insert(id, t);
-				}
-			}
+                layer = new TileLayer(
+                    l.Name,
+                    tmx.Width,  // As of TiledQT always same as layer.
+                    tmx.Height, // As of TiledQT always same as layer.
+                    l.Visible,
+                    (float) l.Opacity,
+                    props,
+                    this,
+                    l.Tiles
+                );
+                layers.Add(layer);
+                namedLayers.Add(l.Name, layer);
+            }
 
-			// read in all the layers
-			List<Layer> layers = new List<Layer>();
-			Layers = new ReadOnlyCollection<Layer>(layers);
-			int numLayers = reader.ReadInt32();
-			for (int i = 0; i < numLayers; i++)
-			{
-				Layer layer = null;
+            foreach(TmxObjectGroup og in tmx.ObjectGroups)
+            {
+                Layer layer = null;
 
-				// read generic layer data
-				string type = reader.ReadString();
-				string name = reader.ReadString();
-				int width = reader.ReadInt32();
-				int height = reader.ReadInt32();
-				bool visible = reader.ReadBoolean();
-				float opacity = reader.ReadSingle();
-				PropertyCollection props = new PropertyCollection();
-				props.Read(reader);
+                PropertyCollection props = new PropertyCollection();
+                foreach(KeyValuePair<string, string> kvp in og.Properties)
+                {
+                    props.Add(kvp);
+                }
 
-				// using the type, figure out which object to create
-				if (type == "layer")
-				{
-					int[] data = reader.ReadObject<int[]>();
-					layer = new TileLayer(name, width, height, visible, opacity, props, this, data);
-				}
-				else if (type == "objectgroup")
-				{
-					List<MapObject> objects = new List<MapObject>();
+                List<MapObject> objects = new List<MapObject>();
 
-					// read in all of our objects
-					int numObjects = reader.ReadInt32();
-					for (int j = 0; j < numObjects; j++)
-					{
-						string objName = reader.ReadString();
-						string objType = reader.ReadString();
-						Rectangle objLoc = reader.ReadObject<Rectangle>();
+                // read in all of our objects
+                foreach(TmxObjectGroup.TmxObject i in og.Objects)
+                {
+                    Rectangle objLoc = new Rectangle(
+                        i.X,
+                        i.Y,
+                        i.Width,
+                        i.Height
+                    );
+
+                    List<Point> objPoints = new List<Point>();
+                    if (i.Points != null)
+                    {
+                        foreach (Tuple<int, int> tuple in i.Points)
+                        {
+                            objPoints.Add(new Point(tuple.Item1, tuple.Item2));
+                        }
+                    }
+
+                    PropertyCollection objProps = new PropertyCollection();
+                    foreach(KeyValuePair<string, string> kvp in i.Properties)
+                    {
+                        objProps.Add(kvp);
+                    }
+
+                    objects.Add(
+                        new MapObject(
+                            i.Name,
+                            i.Type,
+                            objLoc,
+                            objPoints,
+                            objProps)
+                    );
+                }
+
+                layer = new MapObjectLayer(
+                    og.Name,
+                    tmx.Width,
+                    tmx.Height,
+                    og.Visible,
+                    (float) og.Opacity,
+                    props,
+                    objects
+                );
+
+                layers.Add(layer);
+                namedLayers.Add(og.Name, layer);
+            }
+        }
+
+        internal Map(ContentReader reader) 
+        {
+            // read in the basic map information
+            Version = new Version(reader.ReadString());
+            Orientation = (Orientation)reader.ReadByte();
+            Width = reader.ReadInt32();
+            Height = reader.ReadInt32();
+            TileWidth = reader.ReadInt32();
+            TileHeight = reader.ReadInt32();
+            Properties = new PropertyCollection();
+            Properties.Read(reader);
+
+            // create a list for our tiles
+            List<Tile> tiles = new List<Tile>();
+            Tiles = new Collection<Tile>(tiles);
+
+            // read in each tile set
+            int numTileSets = reader.ReadInt32();
+            for (int i = 0; i < numTileSets; i++)
+            {
+                // get the id and texture
+                int firstId = reader.ReadInt32();
+                string tilesetName = reader.ReadString();
+
+                bool collisionSet = reader.ReadBoolean();
+
+                Texture2D texture = reader.ReadExternalReference<Texture2D>();
+
+                // read in each individual tile
+                int numTiles = reader.ReadInt32();
+                for (int j = 0; j < numTiles; j++)
+                {
+                    int id = firstId + j;
+
+                    // Read the source rectangle from the file.
+                    Rectangle source = reader.ReadObject<Rectangle>();
+
+                    PropertyCollection props = new PropertyCollection();
+                    props.Read(reader);
+
+                    // Read in color data for collision purposes
+                    // You'll probably want to limit this to just the tilesets that are used for collision
+                    // I'm checking for the name of my tileset that contains wall tiles
+                    // Color data takes up a fair bit of RAM
+                    Color[] collisionData = null;
+                    bool[] collisionBitData = null;
+                    if (collisionSet)
+                    {
+                        int numOfBytes = TileWidth * TileHeight;
+                        collisionData = new Color[numOfBytes];
+                        collisionBitData = new bool[numOfBytes];
+
+                        texture.GetData<Color>(
+                            0,
+                            source,
+                            collisionData,
+                            0,
+                            numOfBytes
+                        );
+
+                        for (int col = 0; col < numOfBytes; col++)
+                        {
+                            if (collisionData[col].A > 0)
+                            {
+                                collisionBitData[col] = true;
+                            }
+                        }
+                        collisionData = null;
+                    }
+
+                    Tile t = new Tile(texture, source, props, collisionBitData);
+                    while (id >= tiles.Count)
+                    {
+                        tiles.Add(null);
+                    }
+                    tiles.Insert(id, t);
+                }
+            }
+
+            // read in all the layers
+            List<Layer> layers = new List<Layer>();
+            Layers = new Collection<Layer>(layers);
+            int numLayers = reader.ReadInt32();
+            for (int i = 0; i < numLayers; i++)
+            {
+                Layer layer = null;
+
+                // read generic layer data
+                string type = reader.ReadString();
+                string name = reader.ReadString();
+                int width = reader.ReadInt32();
+                int height = reader.ReadInt32();
+                bool visible = reader.ReadBoolean();
+                float opacity = reader.ReadSingle();
+                PropertyCollection props = new PropertyCollection();
+                props.Read(reader);
+
+                // using the type, figure out which object to create
+                if (type == "layer")
+                {
+                    int[] data = reader.ReadObject<int[]>();
+                    layer = new TileLayer(name, width, height, visible, opacity, props, this, data);
+                }
+                else if (type == "objectgroup")
+                {
+                    List<MapObject> objects = new List<MapObject>();
+
+                    // read in all of our objects
+                    int numObjects = reader.ReadInt32();
+                    for (int j = 0; j < numObjects; j++)
+                    {
+                        string objName = reader.ReadString();
+                        string objType = reader.ReadString();
+                        Rectangle objLoc = reader.ReadObject<Rectangle>();
                         List<Point> objPoints = reader.ReadObject<List<Point>>();
-						PropertyCollection objProps = new PropertyCollection();
-						objProps.Read(reader);
+                        PropertyCollection objProps = new PropertyCollection();
+                        objProps.Read(reader);
 
-						objects.Add(new MapObject(objName, objType, objLoc, objPoints, objProps));
-					}
+                        objects.Add(new MapObject(objName, objType, objLoc, objPoints, objProps));
+                    }
 
-					layer = new MapObjectLayer(name, width, height, visible, opacity, props, objects);
-				}
-				else
-				{
-					throw new Exception("Invalid type: " + type);
-				}
+                    layer = new MapObjectLayer(name, width, height, visible, opacity, props, objects);
+                }
+                else
+                {
+                    throw new Exception("Invalid type: " + type);
+                }
 
-				layers.Add(layer);
-				namedLayers.Add(name, layer);
-			}
-		}
+                layers.Add(layer);
+                namedLayers.Add(name, layer);
+            }
+        }
 
-		/// <summary>
-		/// Gets a layer by name.
-		/// </summary>
-		/// <param name="name">The name of the layer to retrieve.</param>
-		/// <returns>The layer with the given name.</returns>
-		public Layer GetLayer(string name)
-		{
+        /// <summary>
+        /// Gets a layer by name.
+        /// </summary>
+        /// <param name="name">The name of the layer to retrieve.</param>
+        /// <returns>The layer with the given name.</returns>
+        public Layer GetLayer(string name)
+        {
             if (namedLayers.ContainsKey(name))
                 return namedLayers[name];
             else
                 return null;
-		}
+        }
 
         /// <summary>
         /// Draws all layers of the map
@@ -257,8 +509,8 @@ namespace TiledLib
                 return;
 
             TileLayer tileLayer = l as TileLayer;
-			if (tileLayer != null)
-			{
+            if (tileLayer != null)
+            {
                 if (tileLayer.Properties.Contains("Shadows"))
                     DrawLayer(spriteBatch, tileLayer.Name, gameCamera, new Vector2(-10f, -10f), 0.2f);
 
@@ -313,8 +565,8 @@ namespace TiledLib
                 return;
 
             TileLayer tileLayer = l as TileLayer;
-			if (tileLayer != null)
-			{
+            if (tileLayer != null)
+            {
                 //for (float mult = 0f; mult < 1f; mult += 0.1f)
                 //{
                     DrawLayer(spriteBatch, l, gameCamera, shadowOffset, alpha, Color.Black);
@@ -392,10 +644,10 @@ namespace TiledLib
 
                 TileLayer tileLayer = Layers[i] as TileLayer;
 
-                position.X = (int)position.X;
-                position.Y = (int)position.Y;
-
-                Vector2 tilePosition = new Vector2((int)(position.X / TileWidth), (int)(position.Y / TileHeight));
+                Vector2 tilePosition = new Vector2(
+                    (int)position.X / TileWidth,
+                    (int)position.Y / TileHeight
+                );
 
                 if (tilePosition.X < 0 || tilePosition.Y < 0 || tilePosition.X > Width - 1 || tilePosition.Y > Height - 1)
                     continue;
@@ -412,10 +664,10 @@ namespace TiledLib
                     positionOnTileX = (int)MathHelper.Clamp(positionOnTileX, 0, TileWidth);
                     positionOnTileY = (int)MathHelper.Clamp(positionOnTileY, 0, TileHeight);
 
-                    int pixelCheckX = (collisionTile.Source.X) + positionOnTileX;
-                    int pixelCheckY = (collisionTile.Source.Y) + positionOnTileY;
-
-                    return collisionTile.CollisionData[(pixelCheckY * collisionTile.Texture.Width) + pixelCheckX];
+                    return collisionTile.CollisionData[
+                        (positionOnTileY * collisionTile.Source.Width) +
+                        positionOnTileX
+                    ];
                 }
                 else
                 {

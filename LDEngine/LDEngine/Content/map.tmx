@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="20" height="12" tilewidth="16" tileheight="16">
+ <tileset firstgid="1" name="testtiles" tilewidth="16" tileheight="16">
+  <image source="testtiles.png" width="96" height="48"/>
+  <tile id="7">
+   <properties>
+    <property name="CollisionSet" value="True"/>
+   </properties>
+  </tile>
+ </tileset>
+ <layer name="bg" width="20" height="12">
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+NmYGDgHsWjeBQPSQwAod8NQ8ADAAA=
+  </data>
+ </layer>
+ <layer name="fg" width="20" height="12">
+  <properties>
+   <property name="Collision" value="On"/>
+  </properties>
+  <data encoding="base64" compression="gzip">
+   H4sIAAAAAAAAC+NgYGDgoDKmFiDWPHLVYXM3KX4gRi0h+ygxjxCg1Dxc4YXLDFz+w+VnYsWIlcdlHj6Aze24zCMmjRPjdmpiAAXm373AAwAA
+  </data>
+ </layer>
+ <objectgroup name="spawn" width="20" height="12">
+  <object x="16" y="160" width="16" height="16"/>
+ </objectgroup>
+</map>
